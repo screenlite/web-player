@@ -15,7 +15,7 @@
 
 ### 1.2 Image Playback
 - Displays static images.
-- **Supported formats**: `.jpg`, `.jpeg`, `.png`, `.gif`.
+- **Supported formats**: `.jpg`, `.jpeg`, `.png`, `.gif`, `.webp`.
 - Configurable display duration for each image.
 - Preloads images to prevent flickering and ensure smooth transitions.
 
