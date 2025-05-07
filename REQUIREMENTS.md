@@ -107,3 +107,9 @@
 ### 6.2 API Events
 - `onEnded`: Triggered when a media item completes playback.
 - `onError`: Triggered when a playback error occurs.
+
+### 7. Data Source Support
+
+- **Static JSON File**: Supports loading playlists from a static JSON file, either hosted remotely or stored locally.
+- **HTTP CMS**: Integrates with a content management system (CMS) via HTTP, supporting dynamic JSON data with authentication mechanisms.
+- **WebSocket CMS**: Enables real-time playlist updates through a WebSocket connection, supporting dynamic JSON data with authentication for secure communication.
