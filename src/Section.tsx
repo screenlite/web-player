@@ -1,4 +1,4 @@
-import { useEffect, useState, useRef, Fragment } from 'react'
+import { useEffect, useState, useRef, Fragment, useMemo } from 'react'
 import type { Section } from './types'
 
 const PRELOAD_TIME = 5 // seconds
@@ -24,7 +24,7 @@ export const SectionContainer = ({ section }: { section: Section }) => {
 
             if (item.type === 'video' && video) {
                 if (!item.hidden) {
-                    video.play().catch(() => {})
+                    video.play().catch(() => { })
                 } else {
                     video.pause()
                     video.currentTime = 0
@@ -97,57 +97,74 @@ export const SectionContainer = ({ section }: { section: Section }) => {
         timeoutsRef.current = []
     }
 
+    const baseStyle = useMemo(() => ({
+        position: 'absolute' as const,
+        left: section.position.x,
+        top: section.position.y,
+        width: section.position.width,
+        height: section.position.height,
+        zIndex: section.position.z_index,
+    }), [section.position])
+
+    const imageStyle = useMemo(() => ({
+        ...baseStyle,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+    }), [baseStyle])
+
+    const videoStyle = useMemo(() => ({
+        ...baseStyle,
+        objectFit: 'cover' as const,
+    }), [baseStyle])
+
+    const overlayStyle = useMemo(() => ({
+        position: 'absolute' as const,
+        left: section.position.x,
+        top: section.position.y,
+        zIndex: section.position.z_index + 1,
+        backgroundColor: 'rgba(0, 0, 0, 0.8)',
+        padding: '10px',
+    }), [section.position])
+
+    const overlayTextStyle = useMemo(() => ({
+        color: 'white',
+        fontSize: '2em',
+        textAlign: 'center' as const,
+    }), [])
+
     return (
         <>
             {mediaItems.filter(item => item.preload || !item.hidden).map((item) => (
                 <Fragment key={item.id}>
-                    {
-                        item.type === 'image' ? (
-                            <div key={item.id} style={{
-                                position: 'absolute',
-                                left: section.position.x,
-                                top: section.position.y,
-                                width: section.position.width,
-                                height: section.position.height,
+                    {item.type === 'image' ? (
+                        <div
+                            style={{
+                                ...imageStyle,
                                 backgroundImage: `url(${item.src})`,
-                                backgroundSize: 'cover',
-                                backgroundPosition: 'center',
-                                zIndex: section.position.z_index,
                                 opacity: item.hidden ? 0 : 1,
-                            }} />
-                        ) : (
-                            <video key={item.id}
-                                ref={(el) => { videoRefs.current[item.id] = el }}
-                                style={{
-                                    position: 'absolute',
-                                    left: section.position.x,
-                                    top: section.position.y,
-                                    width: section.position.width,
-                                    height: section.position.height,
-                                    objectFit: 'cover',
-                                    zIndex: section.position.z_index,
-                                    opacity: item.hidden ? 0 : 1,
-                                }} loop muted>
-                                <source src={item.src} type="video/mp4" />
-                            </video>
-                        )
-                    }
-                    <div key={`${item.id}-id`} style={{
-                        position: 'absolute',
-                        left: section.position.x,
-                        top: section.position.y,
-                        zIndex: section.position.z_index + 1,
-                        display: item.hidden ? 'none' : 'block',
-                        backgroundColor: 'rgba(0, 0, 0, 0.8)',
-                        padding: '10px',
-                    }}>
-                        <span style={{
-                            color: 'white',
-                            fontSize: '2em',
-                            textAlign: 'center',
-                        }}>
-                            {item.id}
-                        </span>
+                            }}
+                        />
+                    ) : (
+                        <video
+                            ref={(el) => { videoRefs.current[item.id] = el }}
+                            style={{
+                                ...videoStyle,
+                                opacity: item.hidden ? 0 : 1,
+                            }}
+                            loop
+                            muted
+                        >
+                            <source src={item.src} type="video/mp4" />
+                        </video>
+                    )}
+
+                    <div
+                        style={{
+                            ...overlayStyle,
+                            display: item.hidden ? 'none' : 'block',
+                        }}
+                    >
+                        <span style={overlayTextStyle}>{item.id}</span>
                     </div>
                 </Fragment>
             ))}
