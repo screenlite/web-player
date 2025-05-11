@@ -16,6 +16,22 @@ export const SectionContainer = ({ section }: { section: Section }) => {
     const [mediaItems, setMediaItems] = useState<MediaItem[]>([])
     const hasStarted = useRef(false)
     const timeoutsRef = useRef<NodeJS.Timeout[]>([])
+    const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({})
+
+    useEffect(() => {
+        mediaItems.forEach(item => {
+            const video = videoRefs.current[item.id]
+
+            if (item.type === 'video' && video) {
+                if (!item.hidden) {
+                    video.play().catch(() => {})
+                } else {
+                    video.pause()
+                    video.currentTime = 0
+                }
+            }
+        })
+    }, [mediaItems])
 
     useEffect(() => {
         const items = section.items.map(item => ({
@@ -100,16 +116,18 @@ export const SectionContainer = ({ section }: { section: Section }) => {
                                 opacity: item.hidden ? 0 : 1,
                             }} />
                         ) : (
-                            <video key={item.id} style={{
-                                position: 'absolute',
-                                left: section.position.x,
-                                top: section.position.y,
-                                width: section.position.width,
-                                height: section.position.height,
-                                objectFit: 'cover',
-                                zIndex: section.position.z_index,
-                                opacity: item.hidden ? 0 : 1,
-                            }} autoPlay loop muted>
+                            <video key={item.id}
+                                ref={(el) => { videoRefs.current[item.id] = el }}
+                                style={{
+                                    position: 'absolute',
+                                    left: section.position.x,
+                                    top: section.position.y,
+                                    width: section.position.width,
+                                    height: section.position.height,
+                                    objectFit: 'cover',
+                                    zIndex: section.position.z_index,
+                                    opacity: item.hidden ? 0 : 1,
+                                }} loop muted>
                                 <source src={item.src} type="video/mp4" />
                             </video>
                         )
