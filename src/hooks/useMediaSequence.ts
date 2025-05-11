@@ -1,16 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
-import type { Section } from '../types'
+import type { MediaItem, Section } from '../types'
 
 const PRELOAD_TIME = 5 // seconds
-
-type MediaItem = {
-	id: string,
-	src: string,
-	type: string,
-	duration: number,
-	hidden: boolean,
-	preload: boolean,
-}
 
 export function useMediaSequence(section: Section) {
     const [mediaItems, setMediaItems] = useState<MediaItem[]>([])

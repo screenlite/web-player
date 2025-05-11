@@ -28,3 +28,12 @@ type Item = {
 	content_path: string
 	duration: number
 }
+
+export type MediaItem = {
+	id: string,
+	src: string,
+	type: string,
+	duration: number,
+	hidden: boolean,
+	preload: boolean,
+}

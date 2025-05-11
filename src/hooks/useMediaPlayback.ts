@@ -1,5 +1,5 @@
 import { useEffect, type RefObject } from 'react'
-import type { MediaItem } from './useMediaItems'
+import type { MediaItem } from '../types'
 
 export function useMediaPlayback(
     mediaItems: MediaItem[],
