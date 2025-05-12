@@ -33,7 +33,7 @@ export const SectionContainer = ({ section }: { section: Section }) => {
     const overlayStyle = useMemo(() => ({
         position: 'absolute' as const,
         left: section.position.x,
-        top: section.position.y,
+        top: section.position.y + 50,
         zIndex: section.position.z_index + 1,
         backgroundColor: 'rgba(0, 0, 0, 0.8)',
         padding: '10px',
