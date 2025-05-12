@@ -1,36 +1,17 @@
-import { useEffect, useMemo, useState } from 'react'
 import playlistData from './assets/playlist_data.json'
-import type { Section } from './types'
-import { SectionContainer } from './SectionContainer'
-import { useScaleLayout } from './hooks/useScaleLayout'
+import { usePlaylist } from './hooks/usePlaylist'
+import { PlaylistRenderer } from './PlaylistRenderer'
 
 export const App = () => {
-    const config = useMemo(() => {
-        return {
-            playbackStartedAt: 1747054972,
-            scaleLayout: true,
-        }
-    }, [])
-		
-    const [sections, setSections] = useState<Section[]>([])
+    const { currentPlaylist, startTimestamp } = usePlaylist(playlistData)
 
-    useEffect(() => {
-        setSections(playlistData.sections)
-    }, [])
-
-    const scale = useScaleLayout(playlistData, config.scaleLayout)
-
-    if(sections.length === 0) {
-        return <div>Loading...</div>
+    if(!currentPlaylist || !startTimestamp) {
+        return (
+            <div className='bg-black w-screen h-screen overflow-hidden'>
+                <h1 className='text-white text-3xl font-bold'>No active playlist</h1>
+            </div>
+        )
     }
 
-    return (
-        <div className='bg-black w-screen h-screen overflow-hidden'>
-            {
-                sections.map((section, index) => (
-                    <SectionContainer key={index} section={section} scale={scale} playbackStartedAt={ config.playbackStartedAt }/>
-                ))
-            }
-        </div>
-    )
+    return <PlaylistRenderer playlist={currentPlaylist} startTimestamp={startTimestamp / 1000} />
 }
