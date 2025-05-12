@@ -1,1 +1,1 @@
-[Requirements](REQUIREMENTS.MD)
+[Requirements](REQUIREMENTS.md)
