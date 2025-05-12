@@ -49,18 +49,25 @@ export function useMediaSequence(section: Section, playbackStartTime: number) {
             const preloadIndex = (currentIndex + 1) % mediaItems.length
             const shouldPreload = currentItem.duration - elapsed <= PRELOAD_TIME
 
-            setMediaItems(prev =>
-                prev.map((item, index) => {
+            setMediaItems(prev => {
+                let hasChanged = false
+                const updatedItems = prev.map((item, index) => {
                     const isCurrent = index === currentIndex
                     const isPreload = index === preloadIndex && shouldPreload
 
-                    return {
-                        ...item,
-                        hidden: !isCurrent,
-                        preload: isPreload,
+                    if (item.hidden !== !isCurrent || item.preload !== isPreload) {
+                        hasChanged = true
+                        return {
+                            ...item,
+                            hidden: !isCurrent,
+                            preload: isPreload,
+                        }
                     }
+                    return item
                 })
-            )
+
+                return hasChanged ? updatedItems : prev
+            })
         }, 50)
 
         return () => clearInterval(intervalId)
