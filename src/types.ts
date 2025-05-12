@@ -1,4 +1,5 @@
 export type Playlist = {
+	id: string
 	start_time: string
 	end_time: string
 	width: number
@@ -24,7 +25,7 @@ type Position = {
 	z_index: number
 }
 
-type Item = {
+export type Item = {
 	id: string
 	content_type: 'image' | 'video' | string
 	content_path: string
