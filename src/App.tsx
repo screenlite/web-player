@@ -51,7 +51,7 @@ const preloadMediaFile = (src: string): Promise<void> => {
         media.onerror = () => reject(new Error(`Failed to preload ${src}`))
 
         if (isVideo) {
-            media.oncanplaythrough = () => resolve()
+            resolve()
         }
     })
 }
