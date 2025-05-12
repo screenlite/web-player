@@ -1,4 +1,4 @@
-import { useCallback, useEffect, type RefObject } from 'react'
+import { useCallback, useEffect, useRef, type RefObject } from 'react'
 import type { MediaItem, Section } from '../types'
 import { useSectionMediaItems } from './useSectionMediaItems'
 
@@ -10,6 +10,8 @@ type MediaSequenceState = {
 	elapsedInCurrentItem: number
 	shouldPreloadNext: boolean
 	nextItemIndex: number
+	playbackStartTime: number
+	totalDuration: number
 }
 
 type OnPlaybackComplete = (itemId: string) => void
@@ -21,7 +23,9 @@ const useCalculateMediaState = (mediaItems: MediaItem[], playbackStartTime: numb
                 currentIndex: 0,
                 elapsedInCurrentItem: 0,
                 shouldPreloadNext: false,
-                nextItemIndex: 0
+                nextItemIndex: 0,
+                playbackStartTime: 0,
+                totalDuration: 0
             }
         }
 
@@ -45,7 +49,9 @@ const useCalculateMediaState = (mediaItems: MediaItem[], playbackStartTime: numb
                     currentIndex: i,
                     elapsedInCurrentItem: elapsedInItem,
                     shouldPreloadNext,
-                    nextItemIndex
+                    nextItemIndex,
+                    playbackStartTime,
+                    totalDuration: totalDurationRef.current
                 }
             }
         }
@@ -54,17 +60,39 @@ const useCalculateMediaState = (mediaItems: MediaItem[], playbackStartTime: numb
             currentIndex: 0,
             elapsedInCurrentItem: 0,
             shouldPreloadNext: false,
-            nextItemIndex: 0
+            nextItemIndex: 0,
+            playbackStartTime,
+            totalDuration: totalDurationRef.current
         }
     }, [mediaItems, playbackStartTime, totalDurationRef])
 }
 
 const useUpdateMediaItem = () => {
-    return useCallback((item: MediaItem, index: number, state: MediaSequenceState, onPlaybackComplete?: OnPlaybackComplete) => {
+    const completedInCycleRef = useRef<Set<string>>(new Set())
+    const lastLoopRef = useRef<number | null>(null)
+
+    return useCallback((
+        item: MediaItem,
+        index: number,
+        state: MediaSequenceState,
+        onPlaybackComplete?: OnPlaybackComplete
+    ) => {
         const isCurrent = index === state.currentIndex
         const isPreload = index === state.nextItemIndex && state.shouldPreloadNext
 
-        if (!item.hidden && !isCurrent && onPlaybackComplete) {
+        const now = Math.floor(Date.now() / 1000)
+        const totalDuration = state.totalDuration
+        const loop = Math.floor((now - state.playbackStartTime) / totalDuration)
+
+        if (lastLoopRef.current !== loop) {
+            completedInCycleRef.current.clear()
+            lastLoopRef.current = loop
+        }
+
+        const alreadyCompleted = completedInCycleRef.current.has(item.id)
+
+        if (!item.hidden && !isCurrent && onPlaybackComplete && !alreadyCompleted) {
+            completedInCycleRef.current.add(item.id)
             onPlaybackComplete(item.id)
         }
 
@@ -81,15 +109,12 @@ const useUpdateMediaItemsState = (setMediaItems: React.Dispatch<React.SetStateAc
 
     return useCallback((state: MediaSequenceState) => {
         setMediaItems(prevItems => {
-            let hasChanges = false
+            const updatedItems = prevItems.map((item, index) => updateMediaItem(item, index, state, onPlaybackComplete))
 
-            const updatedItems = prevItems.map((item, index) => {
-                const updatedItem = updateMediaItem(item, index, state, onPlaybackComplete)
+            const hasChanges = updatedItems.some((updatedItem, index) => {
+                const prevItem = prevItems[index]
 
-                if (item.hidden !== updatedItem.hidden || item.preload !== updatedItem.preload) {
-                    hasChanges = true
-                }
-                return updatedItem
+                return prevItem.hidden !== updatedItem.hidden || prevItem.preload !== updatedItem.preload
             })
 
             return hasChanges ? updatedItems : prevItems
