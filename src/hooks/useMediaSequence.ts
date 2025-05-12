@@ -1,66 +1,118 @@
-import { useCallback, useEffect } from 'react'
-import type { Section } from '../types'
+import { useCallback, useEffect, type RefObject } from 'react'
+import type { MediaItem, Section } from '../types'
 import { useSectionMediaItems } from './useSectionMediaItems'
 
 const PRELOAD_TIME = 5 // seconds
+const UPDATE_INTERVAL_MS = 50
 
-export function useMediaSequence(section: Section, playbackStartTime: number) {
-    const { mediaItems, setMediaItems, totalDurationRef } = useSectionMediaItems(section.items)
+type MediaSequenceState = {
+	currentIndex: number
+	elapsedInCurrentItem: number
+	shouldPreloadNext: boolean
+	nextItemIndex: number
+}
 
-    const getCurrentIndexAndElapsed = useCallback((): [number, number] => {
+type OnPlaybackComplete = (itemId: string) => void
+
+const useCalculateMediaState = (mediaItems: MediaItem[], playbackStartTime: number, totalDurationRef: RefObject<number>) => {
+    return useCallback((): MediaSequenceState => {
+        if (!playbackStartTime || mediaItems.length === 0) {
+            return {
+                currentIndex: 0,
+                elapsedInCurrentItem: 0,
+                shouldPreloadNext: false,
+                nextItemIndex: 0
+            }
+        }
+
         const now = Math.floor(Date.now() / 1000)
         const elapsedSinceStart = now - playbackStartTime
         const cycleTime = elapsedSinceStart % totalDurationRef.current
 
-        let accumulated = 0
+        let accumulatedDuration = 0
 
         for (let i = 0; i < mediaItems.length; i++) {
-            accumulated += mediaItems[i].duration
-            if (accumulated > cycleTime) {
-                const elapsedInItem = cycleTime - (accumulated - mediaItems[i].duration)
+            const itemDuration = mediaItems[i].duration
 
-                return [i, elapsedInItem]
+            accumulatedDuration += itemDuration
+
+            if (accumulatedDuration > cycleTime) {
+                const elapsedInItem = cycleTime - (accumulatedDuration - itemDuration)
+                const nextItemIndex = (i + 1) % mediaItems.length
+                const shouldPreloadNext = itemDuration - elapsedInItem <= PRELOAD_TIME
+
+                return {
+                    currentIndex: i,
+                    elapsedInCurrentItem: elapsedInItem,
+                    shouldPreloadNext,
+                    nextItemIndex
+                }
             }
         }
-        return [0, 0]
+
+        return {
+            currentIndex: 0,
+            elapsedInCurrentItem: 0,
+            shouldPreloadNext: false,
+            nextItemIndex: 0
+        }
     }, [mediaItems, playbackStartTime, totalDurationRef])
+}
+
+const useUpdateMediaItem = () => {
+    return useCallback((item: MediaItem, index: number, state: MediaSequenceState, onPlaybackComplete?: OnPlaybackComplete) => {
+        const isCurrent = index === state.currentIndex
+        const isPreload = index === state.nextItemIndex && state.shouldPreloadNext
+
+        if (!item.hidden && !isCurrent && onPlaybackComplete) {
+            onPlaybackComplete(item.id)
+        }
+
+        return {
+            ...item,
+            hidden: !isCurrent,
+            preload: isPreload,
+        }
+    }, [])
+}
+
+const useUpdateMediaItemsState = (setMediaItems: React.Dispatch<React.SetStateAction<MediaItem[]>>, onPlaybackComplete?: OnPlaybackComplete) => {
+    const updateMediaItem = useUpdateMediaItem()
+
+    return useCallback((state: MediaSequenceState) => {
+        setMediaItems(prevItems => {
+            let hasChanges = false
+
+            const updatedItems = prevItems.map((item, index) => {
+                const updatedItem = updateMediaItem(item, index, state, onPlaybackComplete)
+
+                if (item.hidden !== updatedItem.hidden || item.preload !== updatedItem.preload) {
+                    hasChanges = true
+                }
+                return updatedItem
+            })
+
+            return hasChanges ? updatedItems : prevItems
+        })
+    }, [setMediaItems, onPlaybackComplete, updateMediaItem])
+}
+
+export const useMediaSequence = (section: Section, playbackStartTime: number, onPlaybackComplete?: OnPlaybackComplete) => {
+    const { mediaItems, setMediaItems, totalDurationRef } = useSectionMediaItems(section.items)
+    const calculateCurrentMediaState = useCalculateMediaState(mediaItems, playbackStartTime, totalDurationRef)
+    const updateMediaItemsState = useUpdateMediaItemsState(setMediaItems, onPlaybackComplete)
 
     useEffect(() => {
         if (mediaItems.length === 0 || !playbackStartTime) return
 
         const intervalId = setInterval(() => {
-            const [currentIndex, elapsed] = getCurrentIndexAndElapsed()
-            const currentItem = mediaItems[currentIndex]
-            const preloadIndex = (currentIndex + 1) % mediaItems.length
-            const shouldPreload = currentItem.duration - elapsed <= PRELOAD_TIME
+            const currentState = calculateCurrentMediaState()
 
-            setMediaItems(prev => {
-                let hasChanged = false
-                const updatedItems = prev.map((item, index) => {
-                    const isCurrent = index === currentIndex
-                    const isPreload = index === preloadIndex && shouldPreload
-
-                    if (!item.hidden && !isCurrent) {
-                        console.log(`${item.id} playback ended`)
-                    }
-
-                    if (item.hidden !== !isCurrent || item.preload !== isPreload) {
-                        hasChanged = true
-                        return {
-                            ...item,
-                            hidden: !isCurrent,
-                            preload: isPreload,
-                        }
-                    }
-                    return item
-                })
-
-                return hasChanged ? updatedItems : prev
-            })
-        }, 50)
+            updateMediaItemsState(currentState)
+        }, UPDATE_INTERVAL_MS)
 
         return () => clearInterval(intervalId)
-    }, [mediaItems, playbackStartTime, getCurrentIndexAndElapsed, setMediaItems])
+    }, [mediaItems, playbackStartTime, calculateCurrentMediaState, updateMediaItemsState])
 
     return { mediaItems }
 }
