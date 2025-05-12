@@ -6,7 +6,7 @@ import { useMediaSequence } from './hooks/useMediaSequence'
 export const SectionContainer = ({ section }: { section: Section }) => {
     const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({})
 
-    const { mediaItems } = useMediaSequence(section)
+    const { mediaItems } = useMediaSequence(section, 1747054972)
 
     useMediaPlayback(mediaItems, videoRefs)
 

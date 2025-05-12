@@ -3,11 +3,9 @@ import type { MediaItem, Section } from '../types'
 
 const PRELOAD_TIME = 5 // seconds
 
-export function useMediaSequence(section: Section) {
+export function useMediaSequence(section: Section, playbackStartTime: number) {
     const [mediaItems, setMediaItems] = useState<MediaItem[]>([])
-
-    const hasStarted = useRef(false)
-    const timeoutsRef = useRef<NodeJS.Timeout[]>([])
+    const totalDurationRef = useRef<number>(0)
 
     useEffect(() => {
         const items = section.items.map(item => ({
@@ -18,62 +16,55 @@ export function useMediaSequence(section: Section) {
             hidden: true,
             preload: false,
         }))
-		
-        setMediaItems(items)
-        hasStarted.current = false
-        clearAllTimeouts()
-    }, [section.items])
-		
-    useEffect(() => {
-        if (mediaItems.length === 0 || hasStarted.current) return
-		
-        hasStarted.current = true
-		
-        const runSequence = (startIndex: number) => {
-            clearAllTimeouts()
-		
-            const updateItems = (updates: Partial<MediaItem>, index: number) => {
-                setMediaItems(prev => {
-                    const updated = [...prev]
-		
-                    updated[index] = { ...updated[index], ...updates }
-                    return updated
-                })
-            }
-		
-            const currentIndex = startIndex
-            const preloadIndex = (currentIndex + 1) % mediaItems.length
-		
-            updateItems({ hidden: false }, currentIndex)
-		
-            const preloadNextTimeout = setTimeout(() => {
-                updateItems({ preload: true }, preloadIndex)
-            }, (mediaItems[currentIndex].duration - PRELOAD_TIME) * 1000)
-		
-            const transitionTimeout = setTimeout(() => {
-                setMediaItems(prev => {
-                    const updated = [...prev]
-		
-                    updated[currentIndex] = { ...updated[currentIndex], preload: false, hidden: true }
-                    updated[preloadIndex] = { ...updated[preloadIndex], hidden: false, preload: false }
-                    return updated
-                })
-		
-                runSequence(preloadIndex)
-            }, mediaItems[currentIndex].duration * 1000)
-		
-            timeoutsRef.current.push(preloadNextTimeout, transitionTimeout)
-        }
-		
-        runSequence(0)
-    }, [mediaItems])
-		
-    const clearAllTimeouts = () => {
-        timeoutsRef.current.forEach(clearTimeout)
-        timeoutsRef.current = []
-    }
 
-    return {
-        mediaItems,
-    }
+        totalDurationRef.current = items.reduce((sum, item) => sum + item.duration, 0)
+
+        setMediaItems(items)
+    }, [section.items])
+
+    useEffect(() => {
+        if (mediaItems.length === 0 || !playbackStartTime) return
+
+        const getCurrentIndexAndElapsed = (): [number, number] => {
+            const now = Math.floor(Date.now() / 1000)
+            const elapsedSinceStart = now - playbackStartTime
+            const cycleTime = elapsedSinceStart % totalDurationRef.current
+
+            let accumulated = 0
+
+            for (let i = 0; i < mediaItems.length; i++) {
+                accumulated += mediaItems[i].duration
+                if (accumulated > cycleTime) {
+                    const elapsedInItem = cycleTime - (accumulated - mediaItems[i].duration)
+
+                    return [i, elapsedInItem]
+                }
+            }
+            return [0, 0]
+        }
+
+        const intervalId = setInterval(() => {
+            const [currentIndex, elapsed] = getCurrentIndexAndElapsed()
+            const currentItem = mediaItems[currentIndex]
+            const preloadIndex = (currentIndex + 1) % mediaItems.length
+            const shouldPreload = currentItem.duration - elapsed <= PRELOAD_TIME
+
+            setMediaItems(prev =>
+                prev.map((item, index) => {
+                    const isCurrent = index === currentIndex
+                    const isPreload = index === preloadIndex && shouldPreload
+
+                    return {
+                        ...item,
+                        hidden: !isCurrent,
+                        preload: isPreload,
+                    }
+                })
+            )
+        }, 50)
+
+        return () => clearInterval(intervalId)
+    }, [mediaItems, playbackStartTime])
+
+    return { mediaItems }
 }
