@@ -5,12 +5,16 @@ export const updateMediaItem = (
     index: number,
     state: MediaSequenceState
 ): MediaItem => {
-    const isCurrent = index === state.currentIndex
+    const isHidden = index !== state.currentIndex
     const isPreload = index === state.nextItemIndex && state.shouldPreloadNext
+
+    if (item.hidden === isHidden && item.preload === isPreload) {
+        return item
+    }
 
     return {
         ...item,
-        hidden: !isCurrent,
+        hidden: isHidden,
         preload: isPreload,
     }
 }
