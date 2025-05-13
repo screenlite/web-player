@@ -40,3 +40,12 @@ export type MediaItem = {
 	hidden: boolean,
 	preload: boolean,
 }
+
+export type MediaSequenceState = {
+	currentIndex: number
+	elapsedInCurrentItem: number
+	shouldPreloadNext: boolean
+	nextItemIndex: number
+	playbackStartTime: number
+	totalDuration: number
+}

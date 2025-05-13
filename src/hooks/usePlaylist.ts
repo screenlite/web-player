@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import type { Playlist } from '../types'
+import { getActivePlaylist } from '../utils/getActivePlaylist'
 
 export const usePlaylist = (playlists: Playlist[]) => {
     const [currentPlaylist, setCurrentPlaylist] = useState<Playlist | null>(null)
@@ -7,36 +8,25 @@ export const usePlaylist = (playlists: Playlist[]) => {
 
     useEffect(() => {
         const interval = setInterval(() => {
-            const now = new Date()
-            const currentTime = now.toTimeString().split(' ')[0]
+            const {
+                activePlaylist,
+                startTimestamp: newStartTimestamp
+            } = getActivePlaylist(playlists)
 
-            const activePlaylist = playlists.find(
-                (playlist) =>
-                    currentTime >= playlist.start_time && currentTime <= playlist.end_time
-            )
+            if (activePlaylist?.id !== currentPlaylist?.id) {
+                setCurrentPlaylist(activePlaylist)
+            }
 
-            if (activePlaylist) {
-                const today = new Date()
-                const [hours, minutes, seconds] = activePlaylist.start_time.split(':').map(Number)
-                const startTime = new Date(today.getFullYear(), today.getMonth(), today.getDate(), hours, minutes, seconds)
+            if (startTimestamp !== newStartTimestamp) {
+                setStartTimestamp(newStartTimestamp)
+            }
 
-                const newStartTimestamp = startTime.getTime()
+            if (!activePlaylist && currentPlaylist !== null) {
+                setCurrentPlaylist(null)
+            }
 
-                if (currentPlaylist?.id !== activePlaylist.id) {
-                    setCurrentPlaylist(activePlaylist)
-                }
-
-                if (startTimestamp !== newStartTimestamp) {
-                    setStartTimestamp(newStartTimestamp)
-                }
-            } else {
-                if (currentPlaylist !== null) {
-                    setCurrentPlaylist(null)
-                }
-
-                if (startTimestamp !== null) {
-                    setStartTimestamp(null)
-                }
+            if (!newStartTimestamp && startTimestamp !== null) {
+                setStartTimestamp(null)
             }
         }, 50)
 
