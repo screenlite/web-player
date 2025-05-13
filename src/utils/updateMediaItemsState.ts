@@ -10,11 +10,12 @@ export const updateMediaItemsState = (
     const hasChanges = updatedItems.some((updatedItem, index) => {
         const prevItem = items[index]
 
-        if (prevItem.hidden !== updatedItem.hidden) {
-            if (updatedItem.hidden) {
-                console.log('Hiding', updatedItem.id)
-            }
-        }
+        // For debugging purposes
+        // if (prevItem.hidden !== updatedItem.hidden) {
+        //     if (updatedItem.hidden) {
+        //         console.log('Hiding', updatedItem.id)
+        //     }
+        // }
 
         return prevItem.hidden !== updatedItem.hidden || prevItem.preload !== updatedItem.preload
     })
