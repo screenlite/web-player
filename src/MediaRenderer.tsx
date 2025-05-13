@@ -1,8 +1,17 @@
-import { Fragment, useMemo, useRef } from 'react'
+import { useMemo, useRef } from 'react'
 import type { MediaItem, Section } from './types'
 import { useMediaPlayback } from './hooks/useMediaPlayback'
+import { MediaItemRenderer } from './MediaItemRenderer'
 
-export const MediaRenderer = ({ section, mediaItems, scale}: { section: Section, mediaItems: MediaItem[], scale: number}) => {
+export const MediaRenderer = ({
+    section,
+    mediaItems,
+    scale
+}: {
+    section: Section,
+    mediaItems: MediaItem[],
+    scale: number
+}) => {
     const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({})
 
     useMediaPlayback(mediaItems, videoRefs)
@@ -29,30 +38,14 @@ export const MediaRenderer = ({ section, mediaItems, scale}: { section: Section,
 
     return (
         <>
-            {mediaItems.filter(item => item.preload || !item.hidden).map((item) => (
-                <Fragment key={item.id}>
-                    {item.type === 'image' ? (
-                        <div
-                            style={{
-                                ...imageStyle,
-                                backgroundImage: `url(${item.src})`,
-                                opacity: item.hidden ? 0 : 1,
-                            }}
-                        />
-                    ) : (
-                        <video
-                            ref={(el) => { videoRefs.current[item.id] = el }}
-                            style={{
-                                ...videoStyle,
-                                opacity: item.hidden ? 0 : 1,
-                            }}
-                            loop
-                            muted
-                        >
-                            <source src={item.src} type="video/mp4" />
-                        </video>
-                    )}
-                </Fragment>
+            {mediaItems.map(item => (
+                <MediaItemRenderer
+                    key={item.id}
+                    item={item}
+                    videoRefs={videoRefs}
+                    imageStyle={imageStyle}
+                    videoStyle={videoStyle}
+                />
             ))}
         </>
     )
