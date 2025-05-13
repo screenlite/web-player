@@ -9,11 +9,11 @@ export const MediaRenderer = ({ section, mediaItems, scale}: { section: Section,
 
     const baseStyle = useMemo(() => ({
         position: 'absolute' as const,
-        left: section.position.x * scale,
-        top: section.position.y * scale,
-        width: section.position.width * scale,
-        height: section.position.height * scale,
-        zIndex: section.position.z_index * scale,
+        left: Math.floor(section.position.x * scale),
+        top: Math.floor(section.position.y * scale),
+        width: Math.floor(section.position.width * scale),
+        height: Math.floor(section.position.height * scale),
+        zIndex: section.position.z_index,
     }), [section.position, scale])
 
     const imageStyle = useMemo(() => ({
