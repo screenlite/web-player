@@ -1,11 +1,13 @@
 import playlistData from './assets/playlist_data.json'
 import { usePlaylist } from './hooks/usePlaylist'
+import { useTimeOffset } from './hooks/useTimeOffset'
 import { PlaylistRenderer } from './PlaylistRenderer'
 import { useEffect, useState } from 'react'
 
 export const App = () => {
     const { currentPlaylist, startTimestamp } = usePlaylist(playlistData)
     const [isPreloaded, setIsPreloaded] = useState(false)
+    const offsetMs = useTimeOffset()
 
     useEffect(() => {
         const preloadMedia = async () => {
@@ -38,7 +40,7 @@ export const App = () => {
         )
     }
 
-    return <PlaylistRenderer playlist={currentPlaylist} startTimestamp={startTimestamp / 1000} />
+    return <PlaylistRenderer playlist={currentPlaylist} startTimestamp={(startTimestamp - offsetMs) / 1000} />
 }
 
 const preloadMediaFile = (src: string): Promise<void> => {
