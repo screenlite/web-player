@@ -5,9 +5,7 @@ import { calculateMediaSequenceState } from '../utils/calculateCurrentMediaState
 import { updateMediaItemsState } from '../utils/updateMediaItemsState'
 import { hasStateChanged } from '../utils/hasStateChanged'
 
-const UPDATE_INTERVAL_MS = 50
-
-export const useMediaSequence = (section: Section, playbackStartTime: number) => {
+export const useMediaSequence = (section: Section, elapsedSinceStart: number) => {
     const {
         mediaItems,
         setMediaItems,
@@ -15,13 +13,13 @@ export const useMediaSequence = (section: Section, playbackStartTime: number) =>
     } = useSectionMediaItems(section.items)
 
     const stateRef = useRef<MediaSequenceState>(
-        calculateMediaSequenceState(mediaItems, playbackStartTime, totalDurationRef.current)
+        calculateMediaSequenceState(mediaItems, elapsedSinceStart, totalDurationRef.current)
     )
 
-    const updateSequenceState = () => {
+    useEffect(() => {
         const newState = calculateMediaSequenceState(
             mediaItems,
-            playbackStartTime,
+            elapsedSinceStart,
             totalDurationRef.current
         )
 
@@ -33,14 +31,7 @@ export const useMediaSequence = (section: Section, playbackStartTime: number) =>
                 setMediaItems(updatedItems)
             }
         }
-    }
-
-    useEffect(() => {
-        const intervalId = setInterval(updateSequenceState, UPDATE_INTERVAL_MS)
-
-        return () => clearInterval(intervalId)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    }, [mediaItems, playbackStartTime, setMediaItems, totalDurationRef])
+    }, [mediaItems, elapsedSinceStart, setMediaItems, totalDurationRef])
 
     return { mediaItems }
 }

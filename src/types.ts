@@ -47,6 +47,5 @@ export type MediaSequenceState = {
 	elapsedInCurrentItem: number
 	shouldPreloadNext: boolean
 	nextItemIndex: number
-	playbackStartTime: number
 	totalDuration: number
 }

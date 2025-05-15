@@ -4,7 +4,7 @@ import { PlaylistRenderer } from './PlaylistRenderer'
 import { useEffect, useState } from 'react'
 
 export const App = () => {
-    const { currentPlaylist, startTimestamp } = usePlaylist(playlistData)
+    const { currentPlaylist, elapsedSinceStart } = usePlaylist(playlistData)
     const [isPreloaded, setIsPreloaded] = useState(false)
 
     useEffect(() => {
@@ -22,7 +22,7 @@ export const App = () => {
         preloadMedia()
     }, [currentPlaylist])
 
-    if (!currentPlaylist || !startTimestamp) {
+    if (!currentPlaylist || elapsedSinceStart === null) {
         return (
             <div className='bg-black w-screen h-screen overflow-hidden'>
                 <h1 className='text-white text-3xl font-bold'>No active playlist</h1>
@@ -40,7 +40,7 @@ export const App = () => {
 
     return (
         <>
-            <PlaylistRenderer playlist={currentPlaylist} startTimestamp={ startTimestamp } />
+            <PlaylistRenderer playlist={currentPlaylist} elapsedSinceStart={ elapsedSinceStart } />
         </>
     )
 }

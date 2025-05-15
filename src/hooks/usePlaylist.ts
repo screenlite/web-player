@@ -4,7 +4,7 @@ import { getActivePlaylist } from '../utils/getActivePlaylist'
 
 export const usePlaylist = (playlists: Playlist[]) => {
     const [currentPlaylist, setCurrentPlaylist] = useState<Playlist | null>(null)
-    const [startTimestamp, setStartTimestamp] = useState<number | null>(null)
+    const [elapsedSinceStart, setElapsedSinceStart] = useState<number | null>(null)
 
     useEffect(() => {
         const interval = setInterval(() => {
@@ -15,23 +15,23 @@ export const usePlaylist = (playlists: Playlist[]) => {
 
             if (activePlaylist?.id !== currentPlaylist?.id) {
                 setCurrentPlaylist(activePlaylist)
-            }
-
-            if (startTimestamp !== newStartTimestamp) {
-                setStartTimestamp(newStartTimestamp)
+                setElapsedSinceStart(
+                    newStartTimestamp ? Date.now() - newStartTimestamp : null
+                )
+            } else if (activePlaylist) {
+                setElapsedSinceStart(
+                    newStartTimestamp ? Date.now() - newStartTimestamp : null
+                )
             }
 
             if (!activePlaylist && currentPlaylist !== null) {
                 setCurrentPlaylist(null)
-            }
-
-            if (!newStartTimestamp && startTimestamp !== null) {
-                setStartTimestamp(null)
+                setElapsedSinceStart(null)
             }
         }, 50)
 
         return () => clearInterval(interval)
-    }, [playlists, currentPlaylist, startTimestamp])
+    }, [playlists, currentPlaylist])
 
-    return { currentPlaylist, startTimestamp }
+    return { currentPlaylist, elapsedSinceStart }
 }

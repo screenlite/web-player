@@ -7,28 +7,23 @@ type MediaSequenceState = {
 	elapsedInCurrentItem: number
 	shouldPreloadNext: boolean
 	nextItemIndex: number
-	playbackStartTime: number
 	totalDuration: number
 }
 
 export function calculateMediaSequenceState(
     mediaItems: MediaItem[],
-    playbackStartTime: number,
-    totalDuration: number,
-    currentTimestamp: number = Date.now()
+    elapsedSinceStart: number,
+    totalDuration: number
 ): MediaSequenceState {
-    if (!playbackStartTime || mediaItems.length === 0 || !totalDuration) {
+    if (!elapsedSinceStart || mediaItems.length === 0 || !totalDuration) {
         return {
             currentIndex: 0,
             elapsedInCurrentItem: 0,
             shouldPreloadNext: false,
             nextItemIndex: 0,
-            playbackStartTime: 0,
             totalDuration: 0
         }
     }
-
-    const elapsedSinceStart = currentTimestamp - playbackStartTime
 
     const cycleTime = elapsedSinceStart % totalDuration
 
@@ -49,7 +44,6 @@ export function calculateMediaSequenceState(
                 elapsedInCurrentItem: elapsedInItem,
                 shouldPreloadNext,
                 nextItemIndex,
-                playbackStartTime,
                 totalDuration
             }
         }
@@ -60,7 +54,6 @@ export function calculateMediaSequenceState(
         elapsedInCurrentItem: 0,
         shouldPreloadNext: false,
         nextItemIndex: 0,
-        playbackStartTime,
         totalDuration
     }
 }
