@@ -17,21 +17,21 @@ export const usePlaylist = (playlists: Playlist[]) => {
 
             const currentTime = Date.now() + offset
 
-            if (activePlaylist?.id !== currentPlaylist?.id) {
-                setCurrentPlaylist(activePlaylist)
-                setElapsedSinceStart(
-                    newStartTimestamp ? currentTime - newStartTimestamp : null
-                )
-            } else if (activePlaylist) {
-                setElapsedSinceStart(
-                    newStartTimestamp ? currentTime - newStartTimestamp : null
-                )
+            if (!activePlaylist) {
+                if (currentPlaylist !== null) {
+                    setCurrentPlaylist(null)
+                    setElapsedSinceStart(null)
+                }
+                return
             }
 
-            if (!activePlaylist && currentPlaylist !== null) {
-                setCurrentPlaylist(null)
-                setElapsedSinceStart(null)
+            if (activePlaylist.id !== currentPlaylist?.id) {
+                setCurrentPlaylist(activePlaylist)
             }
+
+            setElapsedSinceStart(
+                newStartTimestamp ? currentTime - newStartTimestamp : null
+            )
         }, 50)
 
         return () => clearInterval(interval)
