@@ -1,5 +1,6 @@
 export type Playlist = {
 	id: string
+	start_date: string
 	start_time: string
 	end_time: string
 	width: number

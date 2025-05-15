@@ -15,7 +15,7 @@ export function calculateMediaSequenceState(
     mediaItems: MediaItem[],
     playbackStartTime: number,
     totalDuration: number,
-    currentTimestamp: number = Math.floor(Date.now() / 1000)
+    currentTimestamp: number = Date.now()
 ): MediaSequenceState {
     if (!playbackStartTime || mediaItems.length === 0 || !totalDuration) {
         return {
@@ -29,7 +29,8 @@ export function calculateMediaSequenceState(
     }
 
     const elapsedSinceStart = currentTimestamp - playbackStartTime
-    const cycleTime = elapsedSinceStart % totalDuration
+
+    const cycleTime = (elapsedSinceStart / 1000) % totalDuration
 
     let accumulatedDuration = 0
 

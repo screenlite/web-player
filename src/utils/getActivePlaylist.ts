@@ -16,10 +16,13 @@ export function getActivePlaylist(playlists: Playlist[]): {
         const [hours, minutes, seconds] = activePlaylist.start_time
             .split(':')
             .map(Number)
+
+        const [year, month, day] = activePlaylist.start_date.split('-').map(Number)
+
         const startTime = new Date(
-            now.getFullYear(),
-            now.getMonth(),
-            now.getDate(),
+            year,
+            month - 1,
+            day,
             hours,
             minutes,
             seconds

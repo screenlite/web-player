@@ -13,7 +13,7 @@ export const useMediaSequence = (section: Section, playbackStartTime: number) =>
         setMediaItems,
         totalDurationRef
     } = useSectionMediaItems(section.items)
-	
+
     const stateRef = useRef<MediaSequenceState>(
         calculateMediaSequenceState(mediaItems, playbackStartTime, totalDurationRef.current)
     )
