@@ -1,20 +1,11 @@
-import { useEffect, useMemo, useState } from 'react'
-import type { Playlist, Section } from './types'
+import type { Playlist } from './types'
 import { useScaleLayout } from './hooks/useScaleLayout'
 import { SectionContainer } from './SectionContainer'
 
 export const PlaylistRenderer = ({ playlist, startTimestamp }: { playlist: Playlist, startTimestamp: number }) => {
-    const config = useMemo(() => {
-        return {
-            scaleLayout: true,
-        }
-    }, [])
-		
-    const [sections, setSections] = useState<Section[]>([])
+    const sections = playlist.sections
 
-    useEffect(() => {
-        setSections(playlist.sections)
-    }, [playlist])
+    const config = { scaleLayout: true }
 
     const scale = useScaleLayout(playlist, config.scaleLayout)
 
