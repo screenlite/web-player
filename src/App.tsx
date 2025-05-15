@@ -3,6 +3,7 @@ import { usePlaylist } from './hooks/usePlaylist'
 import { useTimeOffset } from './hooks/useTimeOffset'
 import { PlaylistRenderer } from './PlaylistRenderer'
 import { useEffect, useState } from 'react'
+import { TimeDisplay } from './TimeDisplay'
 
 export const App = () => {
     const { currentPlaylist, startTimestamp } = usePlaylist(playlistData)
@@ -40,7 +41,12 @@ export const App = () => {
         )
     }
 
-    return <PlaylistRenderer playlist={currentPlaylist} startTimestamp={(startTimestamp - offsetMs) / 1000} />
+    return (
+        <>
+            <TimeDisplay offsetMs={offsetMs} />
+            <PlaylistRenderer playlist={currentPlaylist} startTimestamp={(startTimestamp - offsetMs) / 1000} />
+        </>
+    )
 }
 
 const preloadMediaFile = (src: string): Promise<void> => {
