@@ -1,34 +1,49 @@
 import { useEffect, useState } from 'react'
 
-// This is a demo hook that fetches the UTC time from an API and calculates the offset in milliseconds
+const REQUEST_COUNT = 5
+
 export const useTimeOffset = () => {
     const [offsetMs, setOffsetMs] = useState<number>(0)
 
     useEffect(() => {
         let intervalId: NodeJS.Timeout | null = null
-		
+
         const fetchUtcTime = async () => {
-            try {
-                const start = performance.now()
-                const startDate = Date.now()
-                const res = await fetch('https://timeapi.io/api/Time/current/zone?timeZone=UTC')
-                const end = performance.now()
-                const data = await res.json()
-                const utcTimestamp = new Date(data.dateTime).getTime()
+            const offsets: number[] = []
 
-                const networkDelay = (end - start) / 2
-                const estimatedLocalTime = startDate + networkDelay
+            for (let i = 0; i < REQUEST_COUNT; i++) {
+                try {
+                    const start = performance.now()
+                    const startDate = Date.now()
+                    const res = await fetch('https://timeapi.io/api/Time/current/zone?timeZone=UTC')
+                    const end = performance.now()
+                    const data = await res.json()
+                    const utcTimestamp = new Date(data.dateTime).getTime()
 
-                setOffsetMs(estimatedLocalTime - utcTimestamp)
-            } catch {
-                setOffsetMs(0)
+                    const networkDelay = (end - start) / 2
+                    const estimatedLocalTime = startDate + networkDelay
+
+                    offsets.push(estimatedLocalTime - utcTimestamp)
+                } catch {
+                    offsets.push(0)
+                }
             }
+
+            offsets.sort((a, b) => a - b)
+            const trimmed = offsets.slice(1, -1)
+            const avgOffset = trimmed.length
+                ? trimmed.reduce((a, b) => a + b, 0) / trimmed.length
+                : offsets.reduce((a, b) => a + b, 0) / offsets.length
+
+            setOffsetMs(avgOffset)
         }
 
         fetchUtcTime()
         intervalId = setInterval(fetchUtcTime, 30000)
 
-        return () => clearInterval(intervalId)
+        return () => {
+            if (intervalId) clearInterval(intervalId)
+        }
     }, [])
 
     return offsetMs
