@@ -13,20 +13,8 @@ export function getActivePlaylist(playlists: Playlist[]): {
     )
 
     if (activePlaylist) {
-        const [hours, minutes, seconds] = activePlaylist.start_time
-            .split(':')
-            .map(Number)
-
-        const [year, month, day] = activePlaylist.start_date.split('-').map(Number)
-
-        const startTime = new Date(
-            year,
-            month - 1,
-            day,
-            hours,
-            minutes,
-            seconds
-        )
+        const startDateTimeString = `${activePlaylist.start_date}T${activePlaylist.start_time}`
+        const startTime = new Date(startDateTimeString)
 
         return {
             activePlaylist,
