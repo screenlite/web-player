@@ -9,14 +9,17 @@ export const useTimeOffset = () => {
 		
         const fetchUtcTime = async () => {
             try {
-                const start = Date.now()
+                const start = performance.now()
+                const startDate = Date.now()
                 const res = await fetch('https://timeapi.io/api/Time/current/zone?timeZone=UTC')
-                const end = Date.now()
+                const end = performance.now()
                 const data = await res.json()
                 const utcTimestamp = new Date(data.dateTime).getTime()
-                const localTimestamp = (start + end) / 2
 
-                setOffsetMs(localTimestamp - utcTimestamp)
+                const networkDelay = (end - start) / 2
+                const estimatedLocalTime = startDate + networkDelay
+
+                setOffsetMs(estimatedLocalTime - utcTimestamp)
             } catch {
                 setOffsetMs(0)
             }
