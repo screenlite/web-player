@@ -6,30 +6,20 @@ import { updateMediaItemsState } from '../utils/updateMediaItemsState'
 import { hasStateChanged } from '../utils/hasStateChanged'
 
 export const useMediaSequence = (section: Section, elapsedSinceStart: number) => {
-    const {
-        mediaItems,
-        setMediaItems,
-        totalDurationRef
-    } = useSectionMediaItems(section.items)
-
-    const stateRef = useRef<MediaSequenceState>(
-        calculateMediaSequenceState(mediaItems, elapsedSinceStart, totalDurationRef.current)
-    )
+    const { mediaItems, setMediaItems, totalDurationRef } = useSectionMediaItems(section.items)
+    const stateRef = useRef<MediaSequenceState | null>(null)
 
     useEffect(() => {
-        const newState = calculateMediaSequenceState(
-            mediaItems,
-            elapsedSinceStart,
-            totalDurationRef.current
-        )
+        const totalDuration = totalDurationRef.current
+        const newState = calculateMediaSequenceState(mediaItems, elapsedSinceStart, totalDuration)
 
-        if (hasStateChanged(stateRef.current, newState)) {
-            stateRef.current = newState
-            const updatedItems = updateMediaItemsState(mediaItems, newState)
+        if (stateRef.current && !hasStateChanged(stateRef.current, newState)) return
 
-            if (updatedItems !== mediaItems) {
-                setMediaItems(updatedItems)
-            }
+        stateRef.current = newState
+        const updatedItems = updateMediaItemsState(mediaItems, newState)
+
+        if (updatedItems !== mediaItems) {
+            setMediaItems(updatedItems)
         }
     }, [mediaItems, elapsedSinceStart, setMediaItems, totalDurationRef])
 
