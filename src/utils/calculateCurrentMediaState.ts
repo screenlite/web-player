@@ -1,6 +1,6 @@
 import type { MediaItem } from '../types'
 
-const PRELOAD_TIME = 5 // seconds
+const PRELOAD_TIME = 5000
 
 type MediaSequenceState = {
 	currentIndex: number
@@ -30,7 +30,7 @@ export function calculateMediaSequenceState(
 
     const elapsedSinceStart = currentTimestamp - playbackStartTime
 
-    const cycleTime = (elapsedSinceStart / 1000) % totalDuration
+    const cycleTime = elapsedSinceStart % totalDuration
 
     let accumulatedDuration = 0
 

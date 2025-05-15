@@ -10,7 +10,7 @@ export const useSectionMediaItems = (sectionItems: Item[]) => {
             id: item.id,
             src: item.content_path,
             type: item.content_type,
-            duration: item.duration,
+            duration: item.duration * 1000,
             hidden: true,
             preload: false,
         }))
