@@ -1,14 +1,6 @@
-import type { MediaItem } from '../types'
+import type { MediaItem, MediaSequenceState } from '../types'
 
 const PRELOAD_TIME = 5000
-
-type MediaSequenceState = {
-	currentIndex: number
-	elapsedInCurrentItem: number
-	shouldPreloadNext: boolean
-	nextItemIndex: number
-	totalDuration: number
-}
 
 export function calculateMediaSequenceState(
     mediaItems: MediaItem[],
