@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import type { Playlist } from '../types'
 import { getActivePlaylist } from '../utils/getActivePlaylist'
-import { useTimeOffset } from './useTimeOffset'
+import { useTimeServer } from './useTimeServer'
 
 export const usePlaylist = (playlists: Playlist[]) => {
     const [currentPlaylist, setCurrentPlaylist] = useState<Playlist | null>(null)
     const [elapsedSinceStart, setElapsedSinceStart] = useState<number | null>(null)
-    const offset = useTimeOffset()
+    const serverTime = useTimeServer()
 	
     useEffect(() => {
         const interval = setInterval(() => {
@@ -15,7 +15,7 @@ export const usePlaylist = (playlists: Playlist[]) => {
                 startTimestamp: newStartTimestamp
             } = getActivePlaylist(playlists)
 
-            const currentTime = Date.now() + offset
+            const currentTime = serverTime || Date.now()
 
             if (!activePlaylist) {
                 if (currentPlaylist !== null) {
@@ -35,7 +35,7 @@ export const usePlaylist = (playlists: Playlist[]) => {
         }, 50)
 
         return () => clearInterval(interval)
-    }, [playlists, currentPlaylist, offset])
+    }, [playlists, currentPlaylist, serverTime])
 
     return { currentPlaylist, elapsedSinceStart }
 }
