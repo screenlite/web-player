@@ -6,6 +6,8 @@ export const useTimeOffset = () => {
     const [offsetMs, setOffsetMs] = useState<number>(0)
 
     useEffect(() => {
+        let intervalId: NodeJS.Timeout | null = null
+
         const fetchUtcTime = async () => {
             try {
                 const start = Date.now()
@@ -22,6 +24,9 @@ export const useTimeOffset = () => {
         }
 
         fetchUtcTime()
+        intervalId = setInterval(fetchUtcTime, 30000)
+
+        return () => clearInterval(intervalId)
     }, [])
 
     return offsetMs
