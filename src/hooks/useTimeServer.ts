@@ -4,7 +4,7 @@ type TimeServerMessage = {
 	timestamp: number
 }
 
-export const useTimeServer = (url: string = 'ws://localhost:8080') => {
+export const useTimeServer = (url: string = 'ws://192.168.137.1:8080') => {
     const [timestamp, setTimestamp] = useState<number | null>(null)
     const wsRef = useRef<WebSocket | null>(null)
 
