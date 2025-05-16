@@ -1,0 +1,48 @@
+[
+	{
+		"id": "demo_playlist_1",
+		"start_date": "2025-05-01",
+		"start_time": "00:00:00",
+		"end_time": "23:59:59",
+		"width": 2050,
+		"height": 1080,
+		"sections": [
+			{
+				"id": "right",
+				"position": {
+					"x": 0,
+					"y": 0,
+					"width": 1024,
+					"height": 1080,
+					"z_index": 1
+				},
+				"items": [
+					{
+						"id": "right_1",
+						"content_type": "video",
+						"content_path": "demo/vw_left.mp4",
+						"duration": 4
+					}
+				]
+			},
+			{
+				"id": "right",
+				"position": {
+					"x": 1026,
+					"y": 0,
+					"width": 1024,
+					"height": 1080,
+					"z_index": 1
+				},
+				"items": [
+					{
+						"id": "right_1",
+						"content_type": "video",
+						"content_path": "demo/vw_right.mp4",
+						"duration": 4
+					}
+				]
+			}
+		]
+	}
+]
