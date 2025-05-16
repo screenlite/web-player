@@ -1,6 +1,5 @@
-import { useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 import type { MediaItem, Section } from './types'
-import { useMediaPlayback } from './hooks/useMediaPlayback'
 import { MediaItemRenderer } from './MediaItemRenderer'
 
 export const MediaRenderer = ({
@@ -12,10 +11,6 @@ export const MediaRenderer = ({
     mediaItems: MediaItem[],
     scale: number
 }) => {
-    const videoRefs = useRef<Record<string, HTMLVideoElement | null>>({})
-
-    useMediaPlayback(mediaItems, videoRefs)
-
     const baseStyle = useMemo(() => ({
         position: 'absolute' as const,
         left: Math.floor(section.position.x * scale),
@@ -42,7 +37,6 @@ export const MediaRenderer = ({
                 <MediaItemRenderer
                     key={item.id}
                     item={item}
-                    videoRefs={videoRefs}
                     imageStyle={imageStyle}
                     videoStyle={videoStyle}
                 />
