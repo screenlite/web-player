@@ -1,5 +1,4 @@
 import playlistData from './assets/playlist_data.json'
-import { ElapsedDisplay } from './ElapsedDisplay'
 import { useCurrentTimestamp } from './hooks/useCurrentTimestamp'
 import { usePlaylist } from './hooks/usePlaylist'
 import { usePlaylistCache } from './hooks/usePlaylistCache'
@@ -26,10 +25,5 @@ export const App = () => {
         )
     }
 
-    return (
-        <>
-            <ElapsedDisplay elapsed={(elapsedSinceStart / 1000)} />
-            <PlaylistRenderer playlist={currentPlaylist} elapsedSinceStart={ elapsedSinceStart } />
-        </>
-    )
+    return <PlaylistRenderer playlist={currentPlaylist} elapsedSinceStart={ elapsedSinceStart } />
 }
