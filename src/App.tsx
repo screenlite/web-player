@@ -1,11 +1,13 @@
 import playlistData from './assets/playlist_data.json'
 import { ElapsedDisplay } from './ElapsedDisplay'
+import { useCurrentTimestamp } from './hooks/useCurrentTimestamp'
 import { usePlaylist } from './hooks/usePlaylist'
 import { PlaylistRenderer } from './PlaylistRenderer'
 import { useEffect, useState } from 'react'
 
 export const App = () => {
-    const { currentPlaylist, elapsedSinceStart } = usePlaylist(playlistData)
+    const currentTimestamp = useCurrentTimestamp()
+    const { currentPlaylist, elapsedSinceStart } = usePlaylist(playlistData, currentTimestamp)
     const [isPreloaded, setIsPreloaded] = useState(false)
 
     useEffect(() => {
