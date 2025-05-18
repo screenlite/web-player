@@ -1,15 +1,13 @@
-import { Fragment, useRef, type CSSProperties } from 'react'
+import { Fragment, useMemo, useRef } from 'react'
 import type { MediaItem } from './types'
 import { useMediaItemPlaybackTracker } from './utils/useMediaItemPlaybackTracker'
 import { useEffect } from 'react'
 
 type Props = {
 	item: MediaItem
-	imageStyle: CSSProperties
-	videoStyle: CSSProperties
 }
 
-export const MediaItemRenderer = ({ item, imageStyle, videoStyle }: Props) => {
+export const MediaItemRenderer = ({ item }: Props) => {
     const videoRef = useRef<HTMLVideoElement | null>(null)
 
     useMediaItemPlaybackTracker(item.id, item.hidden)
@@ -19,24 +17,41 @@ export const MediaItemRenderer = ({ item, imageStyle, videoStyle }: Props) => {
 
         if (item.type !== 'video' || !video) return
 
-        if (!item.hidden) {
-            video.currentTime = 0
-            video.play().catch(() => {})
-        } else {
+        if (item.hidden) {
             video.pause()
             video.currentTime = 0
+        } else {
+            video.play().catch(() => {})
         }
-    }, [item.hidden, item.type])
+    }, [item])
+
+    const imageStyle = useMemo(() => ({
+        position: 'absolute' as const,
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover' as const,
+    }), [])
+
+    const videoStyle = useMemo(() => ({
+        position: 'absolute' as const,
+        top: 0,
+        left: 0,
+        width: '100%',
+        height: '100%',
+        objectFit: 'cover' as const,
+    }), [])
 
     if (!item.preload && item.hidden) return null
 
     return (
-        <Fragment key={item.id}>
+        <Fragment>
             {item.type === 'image' ? (
-                <div
+                <img
+                    src={ item.src }
                     style={{
                         ...imageStyle,
-                        backgroundImage: `url(${item.src})`,
                         opacity: item.hidden ? 0 : 1,
                     }}
                 />
