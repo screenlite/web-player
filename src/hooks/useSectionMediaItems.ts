@@ -12,7 +12,7 @@ export const useSectionMediaItems = (sectionItems: Item[]) => {
             type: item.content_type,
             duration: item.duration * 1000,
             hidden: true,
-            preload: false,
+            preload: false
         }))
 
         // If the section contains only one item, duplicate it to enable seamless looping of the media
