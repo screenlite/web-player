@@ -1,6 +1,7 @@
 export type Playlist = {
 	id: string
 	start_date: string
+	end_date: string
 	start_time: string
 	end_time: string
 	width: number
@@ -45,7 +46,6 @@ export type MediaItem = {
 export type MediaSequenceState = {
 	currentIndex: number
 	elapsedInCurrentItem: number
-	shouldPreloadNext: boolean
-	nextItemIndex: number
+	preloadIndex: null | number
 	totalDuration: number
 }
