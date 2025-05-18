@@ -52,7 +52,7 @@ export const MediaItemRenderer = ({ item }: Props) => {
                     src={ item.src }
                     style={{
                         ...imageStyle,
-                        opacity: item.hidden ? 0 : 1,
+                        zIndex: item.hidden ? 0 : 1,
                     }}
                 />
             ) : (
@@ -60,7 +60,7 @@ export const MediaItemRenderer = ({ item }: Props) => {
                     ref={videoRef}
                     style={{
                         ...videoStyle,
-                        opacity: item.hidden ? 0 : 1,
+                        zIndex: item.hidden ? 0 : 1,
                     }}
                     loop
                     muted
