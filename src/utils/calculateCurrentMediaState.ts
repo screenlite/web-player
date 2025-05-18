@@ -11,8 +11,7 @@ export function calculateMediaSequenceState(
         return {
             currentIndex: 0,
             elapsedInCurrentItem: 0,
-            shouldPreloadNext: false,
-            nextItemIndex: 0,
+            preloadIndex: null,
             totalDuration: 0
         }
     }
@@ -34,8 +33,7 @@ export function calculateMediaSequenceState(
             return {
                 currentIndex: i,
                 elapsedInCurrentItem: elapsedInItem,
-                shouldPreloadNext,
-                nextItemIndex,
+                preloadIndex: shouldPreloadNext ? nextItemIndex : null,
                 totalDuration
             }
         }
@@ -44,8 +42,7 @@ export function calculateMediaSequenceState(
     return {
         currentIndex: 0,
         elapsedInCurrentItem: 0,
-        shouldPreloadNext: false,
-        nextItemIndex: 0,
-        totalDuration
+        preloadIndex: 1,
+        totalDuration: 0
     }
 }
