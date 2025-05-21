@@ -25,5 +25,5 @@ export const App = () => {
         )
     }
 
-    return <PlaylistRenderer playlist={currentPlaylist} elapsedSinceStart={ elapsedSinceStart } />
+    return <PlaylistRenderer playlist={ currentPlaylist } elapsedSinceStart={ elapsedSinceStart } />
 }
