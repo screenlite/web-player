@@ -10,7 +10,6 @@ export function calculateMediaSequenceState(
     if (!elapsedSinceStart || mediaItems.length === 0 || !totalDuration) {
         return {
             currentIndex: 0,
-            elapsedInCurrentItem: 0,
             preloadIndex: null,
             totalDuration: 0
         }
@@ -26,23 +25,18 @@ export function calculateMediaSequenceState(
         accumulatedDuration += itemDuration
 
         if (accumulatedDuration > cycleTime) {
-            const elapsedInItem = cycleTime - (accumulatedDuration - itemDuration)
             const nextItemIndex = (i + 1) % mediaItems.length
-            const shouldPreloadNext = itemDuration - elapsedInItem <= PRELOAD_TIME
+            const timeUntilNextItem = accumulatedDuration - cycleTime
+            const shouldPreloadNext = timeUntilNextItem <= PRELOAD_TIME
 
             return {
                 currentIndex: i,
-                elapsedInCurrentItem: elapsedInItem,
                 preloadIndex: shouldPreloadNext ? nextItemIndex : null,
                 totalDuration
             }
         }
     }
 
-    return {
-        currentIndex: 0,
-        elapsedInCurrentItem: 0,
-        preloadIndex: 1,
-        totalDuration: 0
-    }
+    // This point should never be reached if inputs are valid.
+    throw new Error('Invalid media sequence state: could not determine current item.')
 }
