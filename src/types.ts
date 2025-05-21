@@ -45,7 +45,6 @@ export type MediaItem = {
 
 export type MediaSequenceState = {
 	currentIndex: number
-	elapsedInCurrentItem: number
 	preloadIndex: null | number
 	totalDuration: number
 }
