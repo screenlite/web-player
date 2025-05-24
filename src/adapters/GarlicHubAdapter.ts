@@ -1,4 +1,5 @@
 import type { CMSAdapter } from '../types'
+import { parseSmil } from '../utils/parseSmil'
 
 export class GarlicHubAdapter implements CMSAdapter {
     private endpoint: string
@@ -27,7 +28,8 @@ export class GarlicHubAdapter implements CMSAdapter {
             const response = await fetch(this.endpoint, { headers })
 
             if (response.status === 200) {
-                const data = await response.json()
+                const smilXml = await response.text()
+                const data = parseSmil(smilXml)
 
                 this.etag = response.headers.get('ETag')
                 this.lastModified = response.headers.get('Last-Modified')
