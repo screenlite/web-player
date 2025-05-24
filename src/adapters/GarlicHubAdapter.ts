@@ -2,7 +2,6 @@ import type { CMSAdapter } from '../types'
 import { smilToScreenliteJson } from '../utils/smilJsonToScreenliteJson'
 
 export class GarlicHubAdapter implements CMSAdapter {
-    private endpoint: string
     private cmsUrl: string
     private pollingInterval: number
     private intervalId: NodeJS.Timeout | null = null
@@ -11,9 +10,8 @@ export class GarlicHubAdapter implements CMSAdapter {
     private etag: string | null = null
     private lastModified: string | null = null
 
-    constructor(endpoint: string, pollingInterval: number = 10000) {
-        this.endpoint = endpoint
-        this.cmsUrl = new URL(endpoint).origin
+    constructor(cmsUrl: string, pollingInterval: number = 10000) {
+        this.cmsUrl = new URL(cmsUrl).origin
         this.pollingInterval = pollingInterval
     }
 
@@ -25,9 +23,13 @@ export class GarlicHubAdapter implements CMSAdapter {
         } else if (this.lastModified) {
             headers['If-Modified-Since'] = this.lastModified
         }
+		
+        headers['X-Signage-Agent'] = 'GAPI/1.0 (UUID:15920d5d-7e68-4a61-a145-15b58b6d2090; NAME:Screenlite Web Test) screenlite-web/0.0.1 (MODEL:ScreenliteWeb)'
+
+        const endpoint = `${this.cmsUrl}/smil-index`
 
         try {
-            const response = await fetch(this.endpoint, { headers })
+            const response = await fetch(endpoint, { headers })
 
             if (response.status === 200) {
                 const smilXml = await response.text()

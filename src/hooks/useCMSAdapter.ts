@@ -2,8 +2,8 @@ import { useEffect, useState, useRef } from 'react'
 import type { CMSAdapter } from '../types'
 
 type UseCMSAdapterOptions = {
-  adapter: CMSAdapter;
-};
+	adapter: CMSAdapter
+}
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export function useCMSAdapter<T = any>({ adapter }: UseCMSAdapterOptions): T | null {

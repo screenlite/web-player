@@ -1,13 +1,22 @@
-import playlistData from './assets/playlist_data.json'
+import { useMemo } from 'react'
+import { useCMSAdapter } from './hooks/useCMSAdapter'
 import { useCurrentTimestamp } from './hooks/useCurrentTimestamp'
 import { usePlaylist } from './hooks/usePlaylist'
 import { usePlaylistCache } from './hooks/usePlaylistCache'
 import { PlaylistRenderer } from './PlaylistRenderer'
+import { getCMSAdapter } from './utils/getCMSAdapter'
 
 export const App = () => {
+    const searchParams = new URLSearchParams(window.location.search)
+    const adapterParam = searchParams.get('adapter')
+
+    const adapter = useMemo(() => getCMSAdapter(adapterParam), [adapterParam])
+    const data = useCMSAdapter({ adapter})
+
     const timezone = 'America/Los_Angeles'
     const currentTimestamp = useCurrentTimestamp(timezone)
-    const { currentPlaylist, elapsedSinceStart } = usePlaylist(playlistData, currentTimestamp)
+    
+    const { currentPlaylist, elapsedSinceStart } = usePlaylist(data, currentTimestamp)
     const { isPreloaded } = usePlaylistCache(currentPlaylist)
 
     if (!currentPlaylist || elapsedSinceStart === null) {
