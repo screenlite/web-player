@@ -4,7 +4,7 @@ import { getActivePlaylist } from '../utils/getActivePlaylist'
 
 export const usePlaylist = (playlists: Playlist[], currentTimestamp: number) => {
     return useMemo(() => {
-        const { activePlaylist, startTimestamp } = getActivePlaylist(playlists)
+        const { activePlaylist, startTimestamp } = getActivePlaylist(playlists, currentTimestamp)
 
         const elapsedSinceStart =
             activePlaylist && startTimestamp != null
