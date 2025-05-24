@@ -25,43 +25,38 @@ export const MediaItemRenderer = ({ item }: Props) => {
         }
     }, [item])
 
-    const imageStyle = useMemo(() => ({
+    const commonStyle = useMemo(() => ({
         position: 'absolute' as const,
         top: 0,
         left: 0,
         width: '100%',
         height: '100%',
         objectFit: 'cover' as const,
-    }), [])
+        zIndex: item.hidden ? 0 : 1,
+        opacity: item.hidden ? 1 : 0.5,
+    }), [item.hidden])
+
+    const imageStyle = useMemo(() => ({
+        ...commonStyle
+    }), [commonStyle])
 
     const videoStyle = useMemo(() => ({
-        position: 'absolute' as const,
-        top: 0,
-        left: 0,
-        width: '100%',
-        height: '100%',
-        objectFit: 'cover' as const,
-    }), [])
+        ...commonStyle
+    }), [commonStyle])
 
     if (!item.preload && item.hidden) return null
 
     return (
-        <Fragment>
+        <Fragment key={item.id}>
             {item.type === 'image' ? (
                 <img
                     src={ item.src }
-                    style={{
-                        ...imageStyle,
-                        zIndex: item.hidden ? 0 : 1,
-                    }}
+                    style={imageStyle}
                 />
             ) : (
                 <video
                     ref={videoRef}
-                    style={{
-                        ...videoStyle,
-                        zIndex: item.hidden ? 0 : 1,
-                    }}
+                    style={videoStyle}
                     loop
                     muted
                 >
