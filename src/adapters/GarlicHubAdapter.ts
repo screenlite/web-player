@@ -1,8 +1,9 @@
 import type { CMSAdapter } from '../types'
-import { parseSmil } from '../utils/parseSmil'
+import { smilToScreenliteJson } from '../utils/smilJsonToScreenliteJson'
 
 export class GarlicHubAdapter implements CMSAdapter {
     private endpoint: string
+    private cmsUrl: string
     private pollingInterval: number
     private intervalId: NodeJS.Timeout | null = null
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -12,6 +13,7 @@ export class GarlicHubAdapter implements CMSAdapter {
 
     constructor(endpoint: string, pollingInterval: number = 10000) {
         this.endpoint = endpoint
+        this.cmsUrl = new URL(endpoint).origin
         this.pollingInterval = pollingInterval
     }
 
@@ -29,7 +31,7 @@ export class GarlicHubAdapter implements CMSAdapter {
 
             if (response.status === 200) {
                 const smilXml = await response.text()
-                const data = parseSmil(smilXml)
+                const data = smilToScreenliteJson(smilXml, this.cmsUrl)
 
                 this.etag = response.headers.get('ETag')
                 this.lastModified = response.headers.get('Last-Modified')

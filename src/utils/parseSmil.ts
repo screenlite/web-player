@@ -1,20 +1,23 @@
-export type SmilImage = {
-	src: string | null
-	duration: string | null
-	fit: string | null
+export type SmilMediaType = 'image' | 'video' | 'audio' | 'ref' | 'unknown'
+
+export type SmilMediaItem = {
+  type: SmilMediaType
+  src: string | null
+  duration: string | null
+  fit: string | null
 }
 
 export type SmilLayout = {
-	backgroundColor: string
-	width: string
-	height: string
+  backgroundColor: string
+  width: string
+  height: string
 }
 
 export type SmilPlaylist = {
-	title: string
-	refresh: string | null
-	layout: SmilLayout
-	images: SmilImage[]
+  title: string
+  refresh: string | null
+  layout: SmilLayout
+  media: SmilMediaItem[]
 }
 
 export function parseSmil(smilXml: string): SmilPlaylist {
@@ -33,7 +36,7 @@ export function parseSmil(smilXml: string): SmilPlaylist {
     const getMetaHttpEquiv = (httpEquiv: string) =>
         xmlDoc.querySelector(`meta[http-equiv="${httpEquiv}"]`)?.getAttribute('content') || null
 
-    const rootLayout = xmlDoc.querySelector('root-layout')	
+    const rootLayout = xmlDoc.querySelector('root-layout')
 
     const layout: SmilLayout = {
         backgroundColor: rootLayout?.getAttribute('backgroundColor') || '#000000',
@@ -41,17 +44,33 @@ export function parseSmil(smilXml: string): SmilPlaylist {
         height: rootLayout?.getAttribute('height') || '720',
     }
 
-    const images: SmilImage[] = Array.from(xmlDoc.querySelectorAll('img')).map((img) => ({
-        src: img.getAttribute('src'),
-        duration: img.getAttribute('dur'),
-        fit: img.getAttribute('fit'),
-    }))
+    const mediaTags: { tag: string; type: SmilMediaType }[] = [
+        { tag: 'img', type: 'image' },
+        { tag: 'video', type: 'video' },
+        { tag: 'audio', type: 'audio' },
+        { tag: 'ref', type: 'ref' },
+    ]
+
+    const media: SmilMediaItem[] = []
+
+    mediaTags.forEach(({ tag, type }) => {
+        const elements = xmlDoc.querySelectorAll(tag)
+
+        elements.forEach((el) => {
+            media.push({
+                type,
+                src: el.getAttribute('src'),
+                duration: el.getAttribute('dur'),
+                fit: el.getAttribute('fit'),
+            })
+        })
+    })
 
     const playlist: SmilPlaylist = {
         title: getMetaContent('title') || 'Untitled Playlist',
         refresh: getMetaHttpEquiv('Refresh'),
         layout,
-        images,
+        media,
     }
 
     return playlist
