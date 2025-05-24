@@ -1,10 +1,9 @@
-import { Fragment, useMemo, useRef } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 import type { MediaItem } from './types'
 import { useMediaItemPlaybackTracker } from './utils/useMediaItemPlaybackTracker'
-import { useEffect } from 'react'
 
 type Props = {
-	item: MediaItem
+    item: MediaItem
 }
 
 export const MediaItemRenderer = ({ item }: Props) => {
@@ -23,9 +22,9 @@ export const MediaItemRenderer = ({ item }: Props) => {
         } else {
             video.play().catch(() => {})
         }
-    }, [item])
+    }, [item.type, item.hidden])
 
-    const commonStyle = useMemo(() => ({
+    const mediaStyle = useMemo(() => ({
         position: 'absolute' as const,
         top: 0,
         left: 0,
@@ -33,36 +32,21 @@ export const MediaItemRenderer = ({ item }: Props) => {
         height: '100%',
         objectFit: 'cover' as const,
         zIndex: item.hidden ? 0 : 1,
-        opacity: item.hidden ? 1 : 0.5,
     }), [item.hidden])
-
-    const imageStyle = useMemo(() => ({
-        ...commonStyle
-    }), [commonStyle])
-
-    const videoStyle = useMemo(() => ({
-        ...commonStyle
-    }), [commonStyle])
 
     if (!item.preload && item.hidden) return null
 
-    return (
-        <Fragment key={item.id}>
-            {item.type === 'image' ? (
-                <img
-                    src={ item.src }
-                    style={imageStyle}
-                />
-            ) : (
-                <video
-                    ref={videoRef}
-                    style={videoStyle}
-                    loop
-                    muted
-                >
-                    <source src={item.src} type="video/mp4" />
-                </video>
-            )}
-        </Fragment>
+    return item.type === 'image' ? (
+        <img key={item.id} src={item.src} style={mediaStyle} />
+    ) : (
+        <video
+            key={item.id}
+            ref={videoRef}
+            style={mediaStyle}
+            loop
+            muted
+        >
+            <source src={item.src} type="video/mp4" />
+        </video>
     )
 }
