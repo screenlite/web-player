@@ -1,10 +1,14 @@
 import { useEffect, useRef } from 'react'
 
+const ENABLE_PLAYBACK_TRACKER = import.meta.env.VITE_ENABLE_PLAYBACK_TRACKER === 'true'
+
 export const useMediaItemPlaybackTracker = (id: string, hidden: boolean) => {
     const wasVisibleRef = useRef(false)
     const visibleTimestampRef = useRef<string | null>(null)
 
     useEffect(() => {
+        if (!ENABLE_PLAYBACK_TRACKER) return
+
         if (!hidden) {
             if (!wasVisibleRef.current) {
                 wasVisibleRef.current = true
