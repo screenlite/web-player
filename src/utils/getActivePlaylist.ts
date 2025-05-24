@@ -19,7 +19,11 @@ let cachedDay: DayCache | null = null
 const MILLISECONDS_PER_DAY = 86400000
 const CACHE_VALIDITY_DURATION_MS = 1000
 
-export function getActivePlaylist(playlists: Playlist[]): ActivePlaylistResult {
+export function getActivePlaylist(playlists: Playlist[] | null): ActivePlaylistResult {
+    if (!playlists || playlists.length === 0) {
+        return { activePlaylist: null, startTimestamp: null }
+    }
+
     const currentTimestamp = Date.now()
     const currentDate = Math.floor(currentTimestamp / MILLISECONDS_PER_DAY)
     const timeWithinDay = currentTimestamp % MILLISECONDS_PER_DAY
