@@ -1,23 +1,35 @@
 export type SmilMediaType = 'image' | 'video' | 'audio' | 'ref' | 'unknown'
 
 export type SmilMediaItem = {
-  type: SmilMediaType
-  src: string | null
-  duration: string | null
-  fit: string | null
+	region: string
+	type: SmilMediaType
+	src: string | null
+	duration: string | null
+	fit: string | null
+}
+
+export type SmilRegion = {
+	regionName: string
+	top: string
+	left: string
+	width: string
+	height: string
+	zIndex: string
+	backgroundColor: string
 }
 
 export type SmilLayout = {
-  backgroundColor: string
-  width: string
-  height: string
+	backgroundColor: string
+	width: string
+	height: string
+	regions: SmilRegion[]
 }
 
 export type SmilPlaylist = {
-  title: string
-  refresh: string | null
-  layout: SmilLayout
-  media: SmilMediaItem[]
+	title: string
+	refresh: string | null
+	layout: SmilLayout
+	media: SmilMediaItem[]
 }
 
 export function parseSmil(smilXml: string): SmilPlaylist {
@@ -38,10 +50,34 @@ export function parseSmil(smilXml: string): SmilPlaylist {
 
     const rootLayout = xmlDoc.querySelector('root-layout')
 
+    const regionElements = xmlDoc.querySelectorAll('region')
+    let regions: SmilRegion[] = Array.from(regionElements).map((el) => ({
+        regionName: el.getAttribute('regionName') || '',
+        top: el.getAttribute('top') || '0',
+        left: el.getAttribute('left') || '0',
+        width: el.getAttribute('width') || '0',
+        height: el.getAttribute('height') || '0',
+        zIndex: el.getAttribute('z-index') || '0',
+        backgroundColor: el.getAttribute('background-color') || 'transparent',
+    }))
+
+    if (regions.length === 0) {
+        regions = [{
+            regionName: 'default',
+            top: '0',
+            left: '0',
+            width: rootLayout?.getAttribute('width') || '1280',
+            height: rootLayout?.getAttribute('height') || '720',
+            zIndex: '0',
+            backgroundColor: rootLayout?.getAttribute('backgroundColor') || '#000000',
+        }]
+    }
+
     const layout: SmilLayout = {
         backgroundColor: rootLayout?.getAttribute('backgroundColor') || '#000000',
         width: rootLayout?.getAttribute('width') || '1280',
         height: rootLayout?.getAttribute('height') || '720',
+        regions,
     }
 
     const mediaTags: { tag: string; type: SmilMediaType }[] = [
@@ -62,8 +98,17 @@ export function parseSmil(smilXml: string): SmilPlaylist {
                 src: el.getAttribute('src'),
                 duration: el.getAttribute('dur'),
                 fit: el.getAttribute('fit'),
+                region: el.getAttribute('region') || '',
             })
         })
+    })
+
+    const firstRegionName = regions[0]?.regionName || 'default'
+
+    media.forEach(item => {
+        if (!item.region) {
+            item.region = firstRegionName
+        }
     })
 
     const playlist: SmilPlaylist = {
