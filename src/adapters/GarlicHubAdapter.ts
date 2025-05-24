@@ -33,7 +33,12 @@ export class GarlicHubAdapter implements CMSAdapter {
 
                 this.etag = response.headers.get('ETag')
                 this.lastModified = response.headers.get('Last-Modified')
-                this.callback?.(data)
+				
+                try {
+                    this.callback?.(data)
+                } catch (callbackError) {
+                    console.error('GarlicHubAdapter: Error in callback', callbackError)
+                }
             } else if (response.status === 304) {
                 // No update needed
             } else {
