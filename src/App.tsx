@@ -9,15 +9,13 @@ import { PlaylistRenderer } from './PlaylistRenderer'
 
 export const App = () => {
     const currentTimestamp = useCurrentTimestamp()
-    const { currentPlaylist, elapsedSinceStart } = usePlaylist(playlistData, currentTimestamp)
-    const { isPreloaded } = usePlaylistCache(currentPlaylist)
-
     // const cmsAdapter = useMemo(
     //     () => new GarlicHubAdapter('https://garlic-hub.com/smil-index', 5000),
     //     []
     // )
-
     // const cmsData = useCMSAdapter({ adapter: cmsAdapter })
+    const { currentPlaylist, elapsedSinceStart } = usePlaylist(playlistData, currentTimestamp)
+    const { isPreloaded } = usePlaylistCache(currentPlaylist)
 
     if (!currentPlaylist || elapsedSinceStart === null) {
         return (
