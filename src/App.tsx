@@ -1,3 +1,6 @@
+// import { useMemo } from 'react'
+// import { GarlicHubAdapter } from './adapters/GarlicHubAdapter'
+// import { useCMSAdapter } from './hooks/useCMSAdapter'
 import playlistData from './assets/playlist_data.json'
 import { useCurrentTimestamp } from './hooks/useCurrentTimestamp'
 import { usePlaylist } from './hooks/usePlaylist'
@@ -8,6 +11,13 @@ export const App = () => {
     const currentTimestamp = useCurrentTimestamp()
     const { currentPlaylist, elapsedSinceStart } = usePlaylist(playlistData, currentTimestamp)
     const { isPreloaded } = usePlaylistCache(currentPlaylist)
+
+    // const cmsAdapter = useMemo(
+    //     () => new GarlicHubAdapter('https://garlic-hub.com/smil-index', 5000),
+    //     []
+    // )
+
+    // const cmsData = useCMSAdapter({ adapter: cmsAdapter })
 
     if (!currentPlaylist || elapsedSinceStart === null) {
         return (
