@@ -48,3 +48,10 @@ export type MediaSequenceState = {
 	preloadIndex: null | number
 	totalDuration: number
 }
+
+export type CMSAdapter = {
+  connect(): void;
+  disconnect(): void;
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  onUpdate(callback: (state: any) => void): void;
+}
