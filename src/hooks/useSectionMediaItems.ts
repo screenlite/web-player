@@ -1,7 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import type { Item, MediaItem } from '../types'
+import { calculateMediaSequenceState } from '../utils/calculateCurrentMediaState'
+import { updateMediaItemsState } from '../utils/updateMediaItemsState'
 
-export const useSectionMediaItems = (sectionItems: Item[]) => {
+export const useSectionMediaItems = (sectionItems: Item[], elapsedSinceStart: number) => {
     const [mediaItems, setMediaItems] = useState<MediaItem[]>([])
     const totalDurationRef = useRef<number>(0)
 
@@ -24,7 +26,11 @@ export const useSectionMediaItems = (sectionItems: Item[]) => {
 
         totalDurationRef.current = items.reduce((sum, item) => sum + item.duration, 0)
 
-        setMediaItems(items)
+        const initialState = calculateMediaSequenceState(items, elapsedSinceStart, totalDurationRef.current)
+        const updatedItems = updateMediaItemsState(items, initialState)
+
+        setMediaItems(updatedItems)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [sectionItems, totalDurationRef])
 
     return { mediaItems, setMediaItems, totalDurationRef }
