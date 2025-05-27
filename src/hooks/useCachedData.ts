@@ -39,10 +39,10 @@ export function useCachedData(playlists: Playlist[] | null) {
                 const result = mockCachePlaylists(playlists)
 
                 if (result !== false) {
-                    console.warn('Caching function returned false, not updating local storage.')
-                
                     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(playlists))
                     setCachedPlaylists(playlists)
+                } else {
+                    console.warn('Caching function returned false, not updating local storage.')
                 }
 
                 console.log('Playlists cached:', playlists)
