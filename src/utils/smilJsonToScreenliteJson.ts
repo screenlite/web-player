@@ -11,11 +11,11 @@ export function smilToScreenliteJson(smilXml: string, cmsUrl: string): Playlist[
     smil.layout.regions.forEach((region) => {
         const regionItems = smil.media
             .filter(media => media.src && media.region === region.regionName)
-            .map((media, index): Item => {
+            .map((media): Item => {
                 const url = new URL(media.src!, cmsUrl).toString()
 
                 return {
-                    id: `item_${region.regionName}_${index}`,
+                    id: `item_${media.src}`,
                     content_type: media.type,
                     content_path: url,
                     duration: media.duration ? parseFloat(media.duration) : 5,
