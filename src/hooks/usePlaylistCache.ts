@@ -12,7 +12,10 @@ export const usePlaylistCache = (playlist: Playlist | null) => {
                 section.items.map(item => preloadMediaFile(item.content_path))
             )
 
-            await Promise.all(mediaPromises)
+            await Promise.all(mediaPromises).catch(err => {
+                console.error('Preload failed:', err)
+            })
+
             setIsPreloaded(true)
         }
 
@@ -22,17 +25,23 @@ export const usePlaylistCache = (playlist: Playlist | null) => {
     return { isPreloaded }
 }
 
-const preloadMediaFile = (src: string): Promise<void> => {
-    return new Promise((resolve, reject) => {
-        const isVideo = src.endsWith('.mp4') || src.endsWith('.webm')
-        const media = isVideo ? document.createElement('video') : new Image()
+const preloadMediaFile = async (src: string): Promise<void> => {
+    try {
+        const cache = await caches.open('screenlite-cache')
 
-        media.src = src
-        media.onload = () => resolve()
-        media.onerror = () => reject(new Error(`Failed to preload ${src}`))
+        const cachedResponse = await cache.match(src)
 
-        if (isVideo) {
-            resolve()
+        if (cachedResponse) return
+
+        const response = await fetch(src, { mode: 'no-cors' })
+
+        if (!response.ok && response.type !== 'opaque') {
+            throw new Error(`Failed to fetch ${src}: ${response.statusText}`)
         }
-    })
+
+        await cache.put(src, response.clone())
+    } catch (err) {
+        console.error('Cache preload error:', err)
+        throw err
+    }
 }
