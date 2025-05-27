@@ -1,80 +1,61 @@
 import type { Playlist } from '../types'
 
-interface ActivePlaylistResult {
-    activePlaylist: Playlist | null
-    startTimestamp: number | null
-}
+export const getActivePlaylist = (playlists: Playlist[], currentTimestampMs: number): {
+	activePlaylist: Playlist | null;
+	startTimestamp: number | null;
+} => {
+    if(!playlists || playlists.length === 0) {
+        return {
+            activePlaylist: null,
+            startTimestamp: null
+        }
+    }
+	
+    const currentDate = new Date(currentTimestampMs)
+    const currentUTCYear = currentDate.getUTCFullYear()
+    const currentUTCMonth = currentDate.getUTCMonth()
+    const currentUTCDay = currentDate.getUTCDate()
 
-interface DayCache {
-    date: number // Days since epoch
-    playlists: Playlist[]
-    activeCache: {
-        timestamp: number
-        result: ActivePlaylistResult
-    } | null
-}
+    const today = new Date(Date.UTC(currentUTCYear, currentUTCMonth, currentUTCDay))
 
-let cachedDay: DayCache | null = null
+    function parseDate(dateStr: string): Date {
+        const [year, month, day] = dateStr.split('-').map(Number)
 
-const MILLISECONDS_PER_DAY = 86400000
-const CACHE_VALIDITY_DURATION_MS = 1000
-
-export function getActivePlaylist(playlists: Playlist[] | null, currentTimestamp: number): ActivePlaylistResult {
-    if (!playlists || playlists.length === 0) {
-        return { activePlaylist: null, startTimestamp: null }
+        return new Date(Date.UTC(year, month - 1, day))
     }
 
-    const currentDate = Math.floor(currentTimestamp / MILLISECONDS_PER_DAY)
-    const timeWithinDay = currentTimestamp % MILLISECONDS_PER_DAY
+    function getDailyTimeRange(startTime: string, endTime: string, day: Date): { start: number; end: number } {
+        const [startH, startM] = startTime.split(':').map(Number)
+        const [endH, endM] = endTime.split(':').map(Number)
 
-    if (!cachedDay || cachedDay.date !== currentDate) {
-        const todaysPlaylists = playlists.filter(playlist => {
-            const startDate = Math.floor(new Date(playlist.start_date).getTime() / MILLISECONDS_PER_DAY)
-            const endDate = Math.floor(new Date(playlist.end_date).getTime() / MILLISECONDS_PER_DAY)
+        const start = Date.UTC(day.getUTCFullYear(), day.getUTCMonth(), day.getUTCDate(), startH, startM)
+        let end = Date.UTC(day.getUTCFullYear(), day.getUTCMonth(), day.getUTCDate(), endH, endM)
 
-            return currentDate >= startDate && currentDate <= endDate
-        })
+        if (end <= start) {
+            end += 24 * 60 * 60 * 1000
+        }
 
-        cachedDay = {
-            date: currentDate,
-            playlists: todaysPlaylists,
-            activeCache: null
+        return { start, end }
+    }
+
+    for (const playlist of playlists) {
+        const startDate = parseDate(playlist.start_date)
+        const endDate = parseDate(playlist.end_date)
+
+        if (today >= startDate && today <= endDate) {
+            const { start, end } = getDailyTimeRange(playlist.start_time, playlist.end_time, today)
+
+            if (currentTimestampMs >= start && currentTimestampMs <= end) {
+                return {
+                    activePlaylist: playlist,
+                    startTimestamp: start
+                }
+            }
         }
     }
 
-    if (cachedDay.activeCache && 
-        currentTimestamp - cachedDay.activeCache.timestamp < CACHE_VALIDITY_DURATION_MS) {
-        return cachedDay.activeCache.result
+    return {
+        activePlaylist: null,
+        startTimestamp: null
     }
-
-    let activePlaylist: Playlist | null = null
-    let playlistStartTimestamp: number | null = null
-
-    for (const playlist of cachedDay.playlists) {
-        const [startHours, startMinutes, startSeconds] = playlist.start_time.split(':').map(Number)
-        const playlistStartTimeMs = (startHours * 3600 + startMinutes * 60 + startSeconds) * 1000
-        
-        const [endHours, endMinutes, endSeconds] = playlist.end_time.split(':').map(Number)
-        const playlistEndTimeMs = (endHours * 3600 + endMinutes * 60 + endSeconds) * 1000
-
-        if (timeWithinDay >= playlistStartTimeMs && timeWithinDay <= playlistEndTimeMs) {
-            playlistStartTimestamp = new Date(playlist.start_date).setHours(
-                startHours, startMinutes, startSeconds, 0
-            )
-            activePlaylist = playlist
-            break
-        }
-    }
-
-    const result: ActivePlaylistResult = {
-        activePlaylist,
-        startTimestamp: playlistStartTimestamp
-    }
-
-    cachedDay.activeCache = {
-        timestamp: currentTimestamp,
-        result
-    }
-
-    return result
 }
