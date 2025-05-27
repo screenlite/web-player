@@ -5,7 +5,7 @@ import { useMemo } from 'react'
 
 export const SectionContainer = ({ section, scale, elapsedSinceStart }: { section: Section, scale: number, elapsedSinceStart: number }) => {	
     const { mediaItems } = useMediaSequence(section, elapsedSinceStart)
-	
+
     const style = useMemo(() => ({
         position: 'fixed' as const,
         left: Math.floor(section.position.x * scale),
@@ -15,6 +15,10 @@ export const SectionContainer = ({ section, scale, elapsedSinceStart }: { sectio
         overflow: 'hidden' as const,
         zIndex: section.position.z_index,
     }), [section.position, scale])
+
+    if(mediaItems.every(item => item.hidden === true)) {
+        console.log('All mediaItems hidden:', )
+    }
 
     return (
         <div style={ style }>
