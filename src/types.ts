@@ -55,3 +55,21 @@ export type CMSAdapter = {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   onUpdate(callback: (state: any) => void): void;
 }
+
+export type DeviceTelemetry = {
+	localIpAddress: string;
+	macAddress: string;
+	softwareVersion: string;
+	screenResolutionWidth: number;
+	screenResolutionHeight: number;
+	platform: string
+	hostname: string
+	timezone: string
+	totalMemory: number
+	freeMemory: number
+	osRelease: string
+}
+
+export type InitDeviceInfo = DeviceTelemetry & {
+	token: string
+}
