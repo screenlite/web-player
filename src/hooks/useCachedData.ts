@@ -4,8 +4,7 @@ import type { Playlist } from '../types'
 const LOCAL_STORAGE_KEY = 'cached_playlists'
 
 // Mock function for caching, can be replaced with real implementation or for testing
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
-export function mockCachePlaylists(playlists: Playlist[]) {
+export function mockCachePlaylists() {
     // For now, just log to console
     console.log('Mock caching playlists')
     return true
@@ -36,7 +35,7 @@ export function useCachedData(playlists: Playlist[] | null) {
 
                 console.log('Playlists changed, updating cached data...')
                 
-                const result = mockCachePlaylists(playlists)
+                const result = mockCachePlaylists()
 
                 if (result !== false) {
                     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(playlists))
