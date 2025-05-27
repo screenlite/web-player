@@ -5,9 +5,9 @@ import { PlaylistRenderer } from './PlaylistRenderer'
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const Player = ({ data, timezone }: { data: any, timezone: string }) => {
     const currentTimestamp = useCurrentTimestamp(timezone)
-		
+
     const { currentPlaylist, elapsedSinceStart } = usePlaylist(data, currentTimestamp)
-		
+
 	 if (!currentPlaylist || elapsedSinceStart === null) {
         return (
             <div className='bg-black w-screen h-screen overflow-hidden'>
