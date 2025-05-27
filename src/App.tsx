@@ -11,7 +11,7 @@ export const App = () => {
 
     const adapter = useMemo(() => getCMSAdapter(adapterParam), [adapterParam])
     
-    const data = useCMSAdapter({ adapter})
+    const data = useCMSAdapter({ adapter })
 
     const timezone = import.meta.env.VITE_TIMEZONE
 
