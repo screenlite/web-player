@@ -1,39 +1,37 @@
 import { useMemo } from 'react'
 import { useCMSAdapter } from './hooks/useCMSAdapter'
-import { useCurrentTimestamp } from './hooks/useCurrentTimestamp'
-import { usePlaylist } from './hooks/usePlaylist'
-import { usePlaylistCache } from './hooks/usePlaylistCache'
-import { PlaylistRenderer } from './PlaylistRenderer'
 import { getCMSAdapter } from './utils/getCMSAdapter'
+import { Player } from './Player'
+import { useCachedData } from './hooks/useCachedData'
 
 export const App = () => {
     const searchParams = new URLSearchParams(window.location.search)
+    
     const adapterParam = searchParams.get('adapter')
 
     const adapter = useMemo(() => getCMSAdapter(adapterParam), [adapterParam])
+    
     const data = useCMSAdapter({ adapter})
 
-    const timezone = 'America/Los_Angeles'
-    const currentTimestamp = useCurrentTimestamp(timezone)
-    
-    const { currentPlaylist, elapsedSinceStart } = usePlaylist(data, currentTimestamp)
-    const { isPreloaded } = usePlaylistCache(currentPlaylist)
+    const timezone = import.meta.env.VITE_TIMEZONE
 
-    if (!currentPlaylist || elapsedSinceStart === null) {
+    const { cachedData, isCaching } = useCachedData(data)
+
+    if(cachedData.length > 0) return <Player data={ data } timezone={timezone} />
+
+    if (!isCaching) {
         return (
             <div className='bg-black w-screen h-screen overflow-hidden'>
-                <h1 className='text-white text-3xl font-bold'>No active playlist</h1>
+                <h1 className='text-white text-3xl font-bold'>Schedule is empty</h1>
             </div>
         )
     }
 
-    if (!isPreloaded) {
+    if (isCaching) {
         return (
             <div className='bg-black w-screen h-screen overflow-hidden'>
-                <h1 className='text-white text-3xl font-bold'>Loading playlist...</h1>
+                <h1 className='text-white text-3xl font-bold'>Loading...</h1>
             </div>
         )
     }
-
-    return <PlaylistRenderer playlist={ currentPlaylist } elapsedSinceStart={ elapsedSinceStart } />
 }
