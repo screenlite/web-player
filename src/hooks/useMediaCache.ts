@@ -1,5 +1,5 @@
-import { useEffect, useState, useCallback, useRef } from 'react'
-import type { MediaItem, CacheProgress } from '../types/cache'
+import { useState, useCallback, useRef } from 'react'
+import type { MediaItem } from '../types/cache'
 import { BrowserMediaCacheAdapter } from '../adapters/BrowserMediaCacheAdapter'
 
 export interface MediaCacheAdapter {
@@ -11,8 +11,6 @@ export interface MediaCacheAdapter {
 
 export function useMediaCache() {
     const [isLoading, setIsLoading] = useState(false)
-    const [progress, setProgress] = useState<CacheProgress[]>([])
-    const [cacheSize, setCacheSize] = useState(0)
     const adapter = useRef<MediaCacheAdapter>(new BrowserMediaCacheAdapter())
 
     const cacheMedia = useCallback(async (items: MediaItem[], signal?: AbortSignal) => {
@@ -41,8 +39,6 @@ export function useMediaCache() {
         getMediaUrl,
         clearCache,
         removeUnusedMedia,
-        isLoading,
-        progress,
-        cacheSize
+        isLoading
     }
 } 

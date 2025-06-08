@@ -52,7 +52,7 @@ export function useCachedData(playlists: Playlist[] | null) {
     })
 
     const [loadingPlaylist, setLoadingPlaylist] = useState<boolean>(false)
-    const { cacheMedia, getMediaUrl, progress, removeUnusedMedia } = useMediaCache()
+    const { cacheMedia, getMediaUrl, removeUnusedMedia } = useMediaCache()
     const originalPlaylistsRef = useRef<Playlist[] | null>(null)
     const abortControllerRef = useRef<AbortController | null>(null)
 
@@ -196,7 +196,6 @@ export function useCachedData(playlists: Playlist[] | null) {
     return { 
         cachedData: cachedPlaylists, 
         isCaching: loadingPlaylist,
-        cacheProgress: progress,
         failedItems: Array.from(failedItems)
     }
 }
