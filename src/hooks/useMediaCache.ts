@@ -1,72 +1,48 @@
-import { useEffect, useState, useCallback } from 'react'
-import type { MediaItem, MediaCacheAdapter, CacheProgress } from '../types/cache'
+import { useEffect, useState, useCallback, useRef } from 'react'
+import type { MediaItem, CacheProgress } from '../types/cache'
 import { BrowserMediaCacheAdapter } from '../adapters/BrowserMediaCacheAdapter'
 
-// Create adapter based on environment
-const createAdapter = (): MediaCacheAdapter => {
-    return new BrowserMediaCacheAdapter()
+export interface MediaCacheAdapter {
+    cacheMedia: (items: MediaItem[], signal?: AbortSignal) => Promise<Map<string, boolean>>
+    getMediaUrl: (url: string) => Promise<string | null>
+    clearCache: () => Promise<void>
+    removeUnusedMedia: (currentUrls: string[]) => Promise<void>
 }
 
-export const useMediaCache = () => {
-    const [adapter] = useState<MediaCacheAdapter>(() => createAdapter())
-    const [cacheSize, setCacheSize] = useState<number>(0)
+export function useMediaCache() {
     const [isLoading, setIsLoading] = useState(false)
     const [progress, setProgress] = useState<CacheProgress[]>([])
+    const [cacheSize, setCacheSize] = useState(0)
+    const adapter = useRef<MediaCacheAdapter>(new BrowserMediaCacheAdapter())
 
-    // Update cache size periodically
-    useEffect(() => {
-        const updateSize = async () => {
-            const size = await adapter.getSize()
-            setCacheSize(size)
-        }
-
-        updateSize()
-        const interval = setInterval(updateSize, 60000) // Update every minute
-        return () => clearInterval(interval)
-    }, [adapter])
-
-    const cacheMedia = useCallback(async (items: MediaItem[]) => {
+    const cacheMedia = useCallback(async (items: MediaItem[], signal?: AbortSignal) => {
         setIsLoading(true)
-        setProgress([])
-
         try {
-            await adapter.cacheItems(items, (itemProgress) => {
-                setProgress(prev => {
-                    const existing = prev.findIndex(p => p.url === itemProgress.url)
-                    if (existing >= 0) {
-                        const newProgress = [...prev]
-                        newProgress[existing] = itemProgress
-                        return newProgress
-                    }
-                    return [...prev, itemProgress]
-                })
-            })
+            return await adapter.current.cacheMedia(items, signal)
         } finally {
             setIsLoading(false)
         }
-    }, [adapter])
+    }, [])
 
     const getMediaUrl = useCallback(async (url: string) => {
-        return adapter.getItem(url)
-    }, [adapter])
+        return adapter.current.getMediaUrl(url)
+    }, [])
 
     const clearCache = useCallback(async () => {
-        setIsLoading(true)
-        try {
-            await adapter.clear()
-            setCacheSize(0)
-            setProgress([])
-        } finally {
-            setIsLoading(false)
-        }
-    }, [adapter])
+        return adapter.current.clearCache()
+    }, [])
+
+    const removeUnusedMedia = useCallback(async (currentUrls: string[]) => {
+        return adapter.current.removeUnusedMedia(currentUrls)
+    }, [])
 
     return {
         cacheMedia,
         getMediaUrl,
         clearCache,
-        cacheSize,
+        removeUnusedMedia,
         isLoading,
-        progress
+        progress,
+        cacheSize
     }
 } 
