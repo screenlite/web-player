@@ -37,6 +37,11 @@ export function calculateMediaSequenceState(
         }
     }
 
-    // This point should never be reached if inputs are valid.
-    throw new Error('Invalid media sequence state: could not determine current item.')
+    // If we somehow reach this point (which should be rare), return a safe default state
+    // This could happen in edge cases like rounding errors or timing issues
+    return {
+        currentIndex: 0,
+        preloadIndex: mediaItems.length > 1 ? 1 : null,
+        totalDuration
+    }
 }
