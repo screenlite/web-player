@@ -56,6 +56,7 @@ export class MediaItemRenderer {
 
     private applyState(item: MediaItem): void {
         this.el.style.zIndex = item.hidden ? '0' : '1'
+        this.el.style.opacity = item.hidden ? '0' : '1'
         this.trackPlayback(item.id, item.hidden)
     }
 
