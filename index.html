@@ -5,6 +5,12 @@
 	<meta charset="UTF-8" />
 	<link rel="icon" type="image/svg+xml" href="/vite.svg" />
 	<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+	<script>
+		const width = screen.width * window.devicePixelRatio
+		const height = screen.height * window.devicePixelRatio
+		document.querySelector('meta[name="viewport"]').content =
+			`width=${width}, height=${height}, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0, user-scalable=no`
+	</script>
 	<title>Screenlite Web</title>
 </head>
 
