@@ -1,5 +1,11 @@
 import type { MediaItem } from '../types/cache'
-import type { MediaCacheAdapter } from '../hooks/useMediaCache'
+
+export interface MediaCacheAdapter {
+    cacheMedia: (items: MediaItem[], signal?: AbortSignal) => Promise<Map<string, boolean>>
+    getMediaUrl: (url: string) => Promise<string | null>
+    clearCache: () => Promise<void>
+    removeUnusedMedia: (currentUrls: string[]) => Promise<void>
+}
 
 export class BrowserMediaCacheAdapter implements MediaCacheAdapter {
     private cache: Cache | null = null
