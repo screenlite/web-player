@@ -110,6 +110,7 @@ export class ConfigOverlay {
             { value: 'NetworkFile', label: 'Network File' },
             { value: 'Screenlite', label: 'Screenlite' },
             { value: 'GarlicHub', label: 'Garlic-Hub' },
+            { value: 'ScreenlitePlayground', label: 'Screenlite Playground' }
         ]))
         form.appendChild(this.buildTextField('cmsAdapterUrl', 'CMS Adapter URL'))
         form.appendChild(this.buildTextField('timezone', 'Timezone'))
