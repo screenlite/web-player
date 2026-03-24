@@ -2,7 +2,7 @@
 
 An open-source, web-based digital signage player.
 
-Built with **Vite**, **React**, and **TypeScript**.
+Built with **Vite** and **TypeScript**. No framework — direct DOM rendering with a vanilla TS architecture.
 
 ## Getting Started
 
@@ -14,12 +14,12 @@ Built with **Vite**, **React**, and **TypeScript**.
 
 2. **Install dependencies:**
 	```bash
-	npm install
+	bun install
 	```
 
 3. **Start the development server:**
 	```bash
-	npm run dev
+	bun run dev
 	```
 
 ## Supported Data Sources
